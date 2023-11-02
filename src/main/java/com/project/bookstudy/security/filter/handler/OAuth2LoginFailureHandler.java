@@ -1,5 +1,6 @@
 package com.project.bookstudy.security.filter.handler;
 
+import com.project.bookstudy.common.dto.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -19,7 +20,7 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
         response.setContentType("application/json");
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.getWriter().write(String.valueOf(LOGIN_FAILED));
+        response.getWriter().write(String.valueOf(ErrorCode.LOGIN_FAILED));
 
         log.info("로그인에 실패했습니다. 에러 메시지 : {}", exception.getMessage());
     }
