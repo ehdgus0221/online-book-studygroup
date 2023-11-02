@@ -33,6 +33,9 @@ public class KakaoOAuth2MemberService implements OAuth2UserService<OAuth2UserReq
         String email = (String) memberInfo.get("email");
         String name = (String) ((Map) memberInfo.get("profile")).get("nickname");
 
+        log.info("email : " + email);
+        log.info("name : " + name);
+
         saveOrUpdate(email, name);
 
         return oAuth2User;
