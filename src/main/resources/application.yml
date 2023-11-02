@@ -8,7 +8,7 @@ spring:
         max-page-size: 50
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
       default_batch_fetch_size: 100
 
     properties:
