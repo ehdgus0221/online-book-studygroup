@@ -35,8 +35,7 @@ public class SecurityConfig {
                 .mvcMatchers("/test").authenticated()
                 .anyRequest().permitAll();
 
-        http
-                .oauth2Login()
+        http.oauth2Login()
                 .userInfoEndpoint().userService(kakaoOAuth2MemberService)
                 .and()
                 .successHandler(oAuth2LoginSuccessHandler)
