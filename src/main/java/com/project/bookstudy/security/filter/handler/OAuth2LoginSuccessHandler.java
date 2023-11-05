@@ -1,5 +1,7 @@
 package com.project.bookstudy.security.filter.handler;
 
+import com.project.bookstudy.common.dto.Error;
+import com.project.bookstudy.common.exception.MemberException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.security.service.JwtTokenService;
