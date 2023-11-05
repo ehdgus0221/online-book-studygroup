@@ -64,3 +64,9 @@ logging:
 
 jwt:
   secret: ${JWT_SECRET}
+
+  access:
+    header: Authorization
+
+  refresh:
+    header: Authorization-refresh
