@@ -1,5 +1,7 @@
 package com.project.bookstudy.security.filter;
 
+import com.project.bookstudy.common.dto.Error;
+import com.project.bookstudy.common.exception.AuthException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.security.service.JwtTokenService;
@@ -20,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * [Jwt 인증 필터]
@@ -100,13 +103,13 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     public void setAuthentication(Member member) {
         String password = member.getPassword();
         if (password == null) { // 소셜 로그인 유저의 비밀번호 임의로 설정 하여 인증 되도록 설정
-            password = RandomStringMaker.randomStringMaker();
+            password = UUID.randomUUID().toString();
         }
 
         UserDetails userDetailsUser = User.builder()
                 .username(member.getEmail())
                 .password(password)
-                .roles(member.getMemberRole().name())
+                .roles(member.getRole().name())
                 .build();
 
         Authentication authentication =
