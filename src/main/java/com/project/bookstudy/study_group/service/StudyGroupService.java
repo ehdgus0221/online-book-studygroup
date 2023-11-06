@@ -8,6 +8,7 @@ import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +21,9 @@ public class StudyGroupService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public StudyGroupDto createStudyGroup(Long memberId, CreateStudyGroupParam studyGroupParam) {
+    public StudyGroupDto createStudyGroup(Authentication authentication, CreateStudyGroupParam studyGroupParam) {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.USER_NOT_FOUND.getDescription()));
 
         StudyGroup savedStudyGroup = studyGroupRepository.save(StudyGroup.from(member, studyGroupParam));
