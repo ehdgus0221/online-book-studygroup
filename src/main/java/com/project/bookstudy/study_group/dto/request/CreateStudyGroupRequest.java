@@ -1,6 +1,7 @@
 package com.project.bookstudy.study_group.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -60,6 +61,21 @@ public class CreateStudyGroupRequest {
         this.recruitmentEndDt = recruitmentEndDt;
     }
 
+    public CreateStudyGroupParam toStudyGroupParam() {
+
+        return CreateStudyGroupParam.builder()
+
+                .contentsDetail(this.contentsDetail)
+                .subject(this.subject)
+                .contents(this.contents)
+                .maxSize(this.maxSize)
+                .price(this.price)
+                .studyStartDt(this.studyStartDt)
+                .studyEndDt(this.studyEndDt)
+                .recruitmentStartDt(this.recruitmentStartDt)
+                .recruitmentEndDt(this.recruitmentEndDt)
+                .build();
+    }
 
 }
 
