@@ -1,6 +1,6 @@
 package com.project.bookstudy.security.filter;
 
-import com.project.bookstudy.common.dto.Error;
+import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.common.exception.AuthException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
@@ -67,7 +67,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
      */
     public void checkRefreshTokenAndReIssueAccessAndRefreshToken(HttpServletResponse response, String refreshToken) {
         Member member = memberRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new AuthException(Error.TOKEN_INVALID));
+                .orElseThrow(() -> new AuthException(ErrorCode.TOKEN_INVALID));
 
         String reIssuedRefreshToken = reIssueRefreshToken(member);
         jwtTokenService.sendAccessAndRefreshToken(response, jwtTokenService.createAccessToken(member.getId()),

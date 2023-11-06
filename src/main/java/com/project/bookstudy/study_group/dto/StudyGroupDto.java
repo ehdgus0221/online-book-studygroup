@@ -1,6 +1,7 @@
 package com.project.bookstudy.study_group.dto;
 
 import com.project.bookstudy.study_group.domain.StudyGroup;
+import com.project.bookstudy.study_group.domain.StudyGroupStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
