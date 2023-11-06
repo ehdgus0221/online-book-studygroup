@@ -1,6 +1,7 @@
 package com.project.bookstudy.study_group.domain;
 
 import com.project.bookstudy.member.domain.Member;
+import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
