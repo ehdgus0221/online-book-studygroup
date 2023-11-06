@@ -1,5 +1,6 @@
 package com.project.bookstudy.study_group.controller;
 
+import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
 import com.project.bookstudy.study_group.service.StudyGroupService;
@@ -21,8 +22,12 @@ public class StudyGroupController {
     private final StudyGroupService studyGroupService;
 
     @PostMapping
-    public ResponseEntity<Void> createStudyGroup(@Valid @RequestBody CreateStudyGroupRequest request) {
-        CreateStudyGroupResponse response = studyGroupService.createStudyGroup(request.toCreateServiceParam());
-        return ResponseEntity.ok().build();
+    public CreateStudyGroupResponse createStudyGroup(@Valid @RequestBody CreateStudyGroupRequest request) {
+        StudyGroupDto studyGroupDto = studyGroupService
+                .createStudyGroup(request.getMemberId(), request.toStudyGroupParam());
+        return CreateStudyGroupResponse.builder()
+                .studyGroupId(studyGroupDto.getId())
+                .leaderId(studyGroupDto.getLeaderId())
+                .build();
     }
 }
