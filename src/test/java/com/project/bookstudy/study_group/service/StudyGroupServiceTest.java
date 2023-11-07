@@ -92,7 +92,7 @@ class StudyGroupServiceTest {
         assertThat(member1.getEmail()).isNotEqualTo(memberEmail);
     }
 
-    @DisplayName("스터디 그룹 생성 성공")
+    @DisplayName("스터디 그룹 생성 실패 - CreateStudyGroupRequest를 통해 만든 스터디그룹 정보와 다른 데이터를 넣어서 Not 비교")
     @Test
     @Transactional
     void createStudyGroupFailed_2() {
