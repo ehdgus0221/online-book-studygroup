@@ -1,17 +1,17 @@
 package com.project.bookstudy.common.exception;
 
 import lombok.Getter;
-import com.project.bookstudy.common.dto.Error;
+import com.project.bookstudy.common.dto.ErrorCode;
 
 @Getter
 public class MemberException extends RuntimeException {
 
-    private final Error error;
+    private final ErrorCode errorCode;
     private final String message;
 
-    public MemberException(Error error) {
-        this.error = error;
-        this.message = error.getDescription();
+    public MemberException(ErrorCode errorCode) {
+        this.errorCode = errorCode;
+        this.message = errorCode.getDescription();
     }
 
 }

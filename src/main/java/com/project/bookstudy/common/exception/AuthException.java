@@ -1,17 +1,17 @@
 package com.project.bookstudy.common.exception;
 
-import com.project.bookstudy.common.dto.Error;
+import com.project.bookstudy.common.dto.ErrorCode;
 import lombok.Getter;
 
 @Getter
 public class AuthException extends RuntimeException {
 
-    private final Error error;
+    private final ErrorCode errorCode;
     private final String description;
 
-    public AuthException(Error error) {
-        this.error = error;
-        this.description = error.getDescription();
+    public AuthException(ErrorCode errorCode) {
+        this.errorCode = errorCode;
+        this.description = errorCode.getDescription();
     }
 
 }

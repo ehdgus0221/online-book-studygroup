@@ -1,13 +1,11 @@
 package com.project.bookstudy.common.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum Error {
+public enum ErrorCode {
     USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
     EMAIL_ALREADY_EXISTS("이메일이 이미 존재합니다."),
     VALIDATION_ERROR("유효성 검사 에러"),
