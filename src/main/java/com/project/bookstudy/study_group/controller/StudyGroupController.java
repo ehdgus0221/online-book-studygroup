@@ -2,6 +2,7 @@ package com.project.bookstudy.study_group.controller;
 
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
+import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
 import com.project.bookstudy.study_group.service.StudyGroupService;
 import lombok.RequiredArgsConstructor;
