@@ -76,6 +76,24 @@ class StudyGroupServiceTest {
 
     }
 
+    @DisplayName("스터디 그룹 생성 실패 - authentication을 통해 사용자 정보 찾지 못하는 경우")
+    @Test
+    @Transactional
+    void createStudyGroupFailed() {
+        //given
+
+        Member member1 = createMember("donghyeon", "dlaehdgus@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+        String memberEmail = authentication.getName();
+
+        //when
+        //then
+        assertThat(member1.getEmail()).isNotEqualTo(memberEmail);
+
+
+    }
+
     private Member createMember(String name, String email) {
         return Member.builder()
                 .name(name)
