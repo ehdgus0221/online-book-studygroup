@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,5 +64,10 @@ public class StudyGroupController {
         return studyGroupService.getStudyGroup(studyGroupId);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateStudyGroup (@PathVariable("id") Long studyGroupId, @RequestBody UpdateStudyGroupRequest request) {
+        studyGroupService.updateStudyGroup(request.toUpdateStudyGroupParam());
+        return ResponseEntity.ok().build();
+    }
 
 }
