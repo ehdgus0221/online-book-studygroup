@@ -170,16 +170,19 @@ class StudyGroupServiceTest {
     @Transactional
     void getStudyGroupFailCauseId() {
         //given
-        Member member = createMember("name", "email");
-        memberRepository.save(member);
+        Member member1 = createMember("donghyeon", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+        Member member2 = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
 
-        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member.getId() + 1,
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member2.getId(),
                 LocalDateTime.of(2023, 10, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 10, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 9, 1, 0, 0, 0),
-                LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject", "contents");
+                LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject3", "contents3");
 
-        StudyGroup studyGroup = request.toCreateServiceParam().toEntityWithLeader(member);
+        StudyGroup studyGroup = request.toCreateServiceParam().toEntityWithLeader(member2);
         studyGroupRepository.save(studyGroup);
 
         //when //then
