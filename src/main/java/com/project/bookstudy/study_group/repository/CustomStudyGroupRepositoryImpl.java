@@ -1,5 +1,6 @@
 package com.project.bookstudy.study_group.repository;
 
+import com.project.bookstudy.study_group.domain.QStudyGroup;
 import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -11,6 +12,7 @@ import com.project.bookstudy.study_group.domain.StudyGroup;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.bookstudy.member.domain.QMember.member;
 import static com.project.bookstudy.study_group.domain.QStudyGroup.studyGroup;
@@ -37,6 +39,18 @@ public class CustomStudyGroupRepositoryImpl implements CustomStudyGroupRepositor
                 .fetchOne();
 
         return new PageImpl<StudyGroup>(studyGroups, pageable, totalCount);
+    }
+
+    @Override
+    public Optional<StudyGroup> findByIdWithLeader(Long id) {
+
+        StudyGroup studyGroup = jpaQueryFactory
+                .selectFrom(QStudyGroup.studyGroup)
+                .where(QStudyGroup.studyGroup.id.eq(id))
+                .join(QStudyGroup.studyGroup.leader, member).fetchJoin()
+                .fetchOne();
+
+        return Optional.ofNullable(studyGroup);
     }
 
     private BooleanExpression leaderNameCond(String leaderName) {

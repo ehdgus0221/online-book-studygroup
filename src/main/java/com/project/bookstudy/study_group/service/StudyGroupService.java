@@ -41,4 +41,12 @@ public class StudyGroupService {
 
         return studyGroups.map(entity -> StudyGroupDto.fromEntity(entity));
     }
+
+    public StudyGroupDto getStudyGroup(Long studyGroupId) {
+
+        StudyGroup studyGroup = studyGroupRepository.findByIdWithLeader(studyGroupId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription()));
+
+        return StudyGroupDto.fromEntity(studyGroup);
+    }
 }
