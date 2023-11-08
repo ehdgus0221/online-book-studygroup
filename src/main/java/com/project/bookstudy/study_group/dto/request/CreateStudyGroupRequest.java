@@ -1,9 +1,13 @@
 package com.project.bookstudy.study_group.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.bookstudy.member.domain.Member;
+import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Lob;
@@ -12,8 +16,10 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreateStudyGroupRequest {
 
+    @NotNull(message = "회원 정보는 필수 입니다.")
     private Long memberId;
     @NotBlank(message = "validation.subject.required")
     private String subject;
@@ -64,10 +70,9 @@ public class CreateStudyGroupRequest {
     public CreateStudyGroupParam toStudyGroupParam() {
 
         return CreateStudyGroupParam.builder()
-
-                .contentsDetail(this.contentsDetail)
                 .subject(this.subject)
                 .contents(this.contents)
+                .contentsDetail(this.contentsDetail)
                 .maxSize(this.maxSize)
                 .price(this.price)
                 .studyStartDt(this.studyStartDt)
@@ -75,6 +80,37 @@ public class CreateStudyGroupRequest {
                 .recruitmentStartDt(this.recruitmentStartDt)
                 .recruitmentEndDt(this.recruitmentEndDt)
                 .build();
+    }
+
+    public CreateStudyGroupRequest toCreateServiceParam() {
+        return CreateStudyGroupRequest.builder()
+                .subject(this.subject)
+                .contents(this.contents)
+                .contentsDetail(this.contentsDetail)
+                .maxSize(this.maxSize)
+                .price(this.price)
+                .studyStartDt(this.studyStartDt)
+                .studyEndDt(this.studyEndDt)
+                .recruitmentStartDt(this.recruitmentStartDt)
+                .recruitmentEndDt(this.recruitmentEndDt)
+                .memberId(this.memberId)
+                .build();
+    }
+
+    public StudyGroup toEntityWithLeader(Member leader) {
+        return StudyGroup.builder()
+                .leader(leader)
+                .studyStartDt(this.studyStartDt)
+                .studyEndDt(this.studyEndDt)
+                .recruitmentStartDt(this.recruitmentStartDt)
+                .recruitmentEndDt(this.recruitmentEndDt)
+                .subject(this.subject)
+                .contents(this.contents)
+                .contentsDetail(this.contentsDetail)
+                .price(this.price)
+                .maxSize(this.maxSize)
+                .build();
+
     }
 
 }

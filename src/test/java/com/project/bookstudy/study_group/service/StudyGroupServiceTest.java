@@ -132,6 +132,68 @@ class StudyGroupServiceTest {
 
     }
 
+    @DisplayName("스터디 그룹 단건 조회 성공")
+    @Test
+    @Transactional
+    void getStudyGroupSuccess() {
+        //given
+        Member member1 = createMember("donghyeon", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+        Member member2 = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member2.getId(),
+                LocalDateTime.of(2023, 10, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject3", "contents3");
+
+
+        StudyGroup studyGroup = request.toCreateServiceParam().toEntityWithLeader(member2);
+        studyGroupRepository.save(studyGroup);
+
+
+        // then
+        //when
+        assertThat(studyGroup.getStudyStartDt()).isEqualTo(LocalDateTime.of(2023, 10, 1, 0, 0, 0));
+        assertThat(studyGroup.getStudyEndDt()).isEqualTo(LocalDateTime.of(2023, 10, 2, 0, 0, 0));
+        assertThat(studyGroup.getRecruitmentStartDt()).isEqualTo(LocalDateTime.of(2023, 9, 1, 0, 0, 0));
+        assertThat(studyGroup.getRecruitmentEndDt()).isEqualTo(LocalDateTime.of(2023, 9, 30, 0, 0, 0));
+        assertThat(studyGroup.getSubject()).isEqualTo("subject3");
+        assertThat(studyGroup.getContents()).isEqualTo("contents3");
+
+    }
+
+    @DisplayName("스터디 그룹 단건 조회 실패 - 해당 스터디 그룹이 DB에 없는 경우")
+    @Test
+    @Transactional
+    void getStudyGroupFailCauseId() {
+        //given
+        Member member = createMember("name", "email");
+        memberRepository.save(member);
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member.getId() + 1,
+                LocalDateTime.of(2023, 10, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject", "contents");
+
+        StudyGroup studyGroup = request.toCreateServiceParam().toEntityWithLeader(member);
+        studyGroupRepository.save(studyGroup);
+
+        //when //then
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyGroupService.getStudyGroup(studyGroup.getId() + 1);
+        });
+    }
+
+    /**
+     *
+     * @param name
+     * @param email
+     * 회원가입 메서드
+     */
     private Member createMember(String name, String email) {
         return Member.builder()
                 .name(name)
@@ -141,6 +203,17 @@ class StudyGroupServiceTest {
                 .build();
     }
 
+    /**
+     *
+     * @param memberId
+     * @param studyStartDt
+     * @param studyEndDt
+     * @param recruitmentStartDt
+     * @param recruitmentEndDt
+     * @param subject
+     * @param contents
+     * 회원가입 request 값
+     */
     private CreateStudyGroupRequest createStudyCreateGroupRequest(Long memberId, LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt, String subject, String contents) {
         return CreateStudyGroupRequest.builder()
                 .memberId(memberId)
@@ -156,6 +229,10 @@ class StudyGroupServiceTest {
                 .build();
     }
 
+    /**
+     *
+     * 토큰 인증을 위한 인증 기능 메서드
+     */
     private Authentication createAuthentication() {
 
         String email = "dlaehdgus23@naver.com";
