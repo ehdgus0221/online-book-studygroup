@@ -53,5 +53,15 @@ public class StudyGroupController {
         return studyGroupService.getStudyGroupList(pageable, cond);
     }
 
+    /**
+     *
+     * @param studyGroupId
+     * 특정 스터디그룹 조회
+     */
+    @GetMapping("/{id}")
+    public StudyGroupDto getStudyGroup (@PathVariable("id") Long studyGroupId) {
+        return studyGroupService.getStudyGroup(studyGroupId);
+    }
+
 
 }
