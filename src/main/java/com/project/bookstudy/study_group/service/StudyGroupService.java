@@ -5,6 +5,7 @@ import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
+import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
@@ -48,5 +49,14 @@ public class StudyGroupService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription()));
 
         return StudyGroupDto.fromEntity(studyGroup);
+    }
+
+    @Transactional
+    public void updateStudyGroup(UpdateStudyGroupParam updateParam) {
+
+        StudyGroup studyGroup = studyGroupRepository.findById(updateParam.getId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription()));
+
+        studyGroup.update(updateParam);
     }
 }

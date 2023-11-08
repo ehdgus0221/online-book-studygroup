@@ -65,7 +65,13 @@ public class StudyGroupController {
         return studyGroupService.getStudyGroup(studyGroupId);
     }
 
-    @PutMapping("/{id}")
+    /**
+     *
+     * @param studyGroupId
+     * @param request
+     * 스터디그룹 수정
+     */
+    @PatchMapping("/{id}")
     public ResponseEntity<Void> updateStudyGroup (@PathVariable("id") Long studyGroupId, @RequestBody UpdateStudyGroupRequest request) {
         studyGroupService.updateStudyGroup(request.toUpdateStudyGroupParam(studyGroupId));
         return ResponseEntity.ok().build();
