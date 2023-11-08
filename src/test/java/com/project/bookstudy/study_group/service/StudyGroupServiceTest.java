@@ -222,6 +222,35 @@ class StudyGroupServiceTest {
         assertEquals(studyGroupList.size(), 2);
     }
 
+    @DisplayName("스터디 그룹 전체 조회 실패 - 전체 스터디 그룹 수가 일치하지 않는 경우")
+    @Test
+    @Transactional
+    void getAllStudyGroupFailed() {
+        //given
+        List<StudyGroup> studyGroupList = new ArrayList<>();
+        Member member1 = createMember("donghyeon", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+        Member member2 = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member2.getId(),
+                LocalDateTime.of(2023, 10, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject3", "contents3");
+
+        StudyGroup studyGroup1 = request.toCreateServiceParam().toEntityWithLeader(member2);
+        StudyGroup studyGroup2 = request.toCreateServiceParam().toEntityWithLeader(member2);
+
+        //when
+        studyGroupList.add(studyGroup1);
+        studyGroupList.add(studyGroup2);
+
+        //then
+        assertNotEquals(studyGroupList.size(), 1);
+    }
+
     /**
      *
      * @param name
