@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableTransactionManagement
-@EnableJpaAuditing
 public class BookStudyApplication {
 
 	public static void main(String[] args) {
