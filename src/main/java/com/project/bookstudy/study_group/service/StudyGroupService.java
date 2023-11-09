@@ -1,6 +1,7 @@
 package com.project.bookstudy.study_group.service;
 
 import com.project.bookstudy.common.dto.ErrorCode;
+import com.project.bookstudy.common.exception.MemberException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
@@ -52,10 +53,17 @@ public class StudyGroupService {
     }
 
     @Transactional
-    public void updateStudyGroup(UpdateStudyGroupParam updateParam) {
+    public void updateStudyGroup(UpdateStudyGroupParam updateParam, Authentication authentication) {
 
         StudyGroup studyGroup = studyGroupRepository.findById(updateParam.getId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription()));
+
+        Member member = memberRepository.findByEmail(authentication.getName())
+                        .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
+
+        if (studyGroup.getLeader().getId() != member.getId()) {
+            throw new IllegalArgumentException(ErrorCode.STUDY_GROUP_UPDATE_FAIL.getDescription());
+        }
 
         studyGroup.update(updateParam);
     }
