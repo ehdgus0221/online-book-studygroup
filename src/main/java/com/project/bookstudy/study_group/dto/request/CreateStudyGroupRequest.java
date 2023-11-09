@@ -19,8 +19,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreateStudyGroupRequest {
 
-    @NotNull(message = "회원 정보는 필수 입니다.")
-    private Long memberId;
     @NotBlank(message = "validation.subject.required")
     private String subject;
 
@@ -53,9 +51,8 @@ public class CreateStudyGroupRequest {
     private LocalDateTime recruitmentStartDt;
 
     @Builder
-    private CreateStudyGroupRequest(Long memberId, String subject, String contents, String contentsDetail, int maxSize, Long price, LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt) {
+    private CreateStudyGroupRequest(String subject, String contents, String contentsDetail, int maxSize, Long price, LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt) {
 
-        this.memberId = memberId;
         this.subject = subject;
         this.contents = contents;
         this.contentsDetail = contentsDetail;
@@ -93,7 +90,6 @@ public class CreateStudyGroupRequest {
                 .studyEndDt(this.studyEndDt)
                 .recruitmentStartDt(this.recruitmentStartDt)
                 .recruitmentEndDt(this.recruitmentEndDt)
-                .memberId(this.memberId)
                 .build();
     }
 
