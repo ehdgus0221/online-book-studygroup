@@ -3,12 +3,14 @@ package com.project.bookstudy.study_group.controller;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
+import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
 import com.project.bookstudy.study_group.service.StudyGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,5 +65,18 @@ public class StudyGroupController {
         return studyGroupService.getStudyGroup(studyGroupId);
     }
 
+    /**
+     *
+     * @param studyGroupId
+     * @param request
+     * 스터디그룹 수정
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateStudyGroup (@PathVariable("id") Long studyGroupId
+            , @RequestBody UpdateStudyGroupRequest request
+    , Authentication authentication) {
+        studyGroupService.updateStudyGroup(request.toUpdateStudyGroupParam(studyGroupId), authentication);
+        return ResponseEntity.ok().build();
+    }
 
 }

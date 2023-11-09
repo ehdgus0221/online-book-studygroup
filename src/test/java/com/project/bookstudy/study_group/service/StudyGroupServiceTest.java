@@ -7,7 +7,7 @@ import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
-import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
+import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -251,6 +250,81 @@ class StudyGroupServiceTest {
         assertNotEquals(studyGroupList.size(), 1);
     }
 
+    @DisplayName("스터디 그룹 수정 성공")
+    @Test
+    @Transactional
+    void updateStudyGroupSuccess() {
+        //given
+
+        Member member1 = createMember("donghyeon", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+        Member member2 = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member2.getId(),
+                LocalDateTime.of(2023, 10, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject", "contents");
+
+
+        //when
+        StudyGroupDto response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+        UpdateStudyGroupRequest request1 = updateStudyGroupRequest(
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 30, 0, 0, 0), "subject update", "contents update", "contents update", 15, 333);
+        studyGroupService.updateStudyGroup(request1.toUpdateStudyGroupParam(studyGroup.getId()), authentication);
+
+        //then
+        assertThat(studyGroup.getId()).isNotNull();
+        assertThat(studyGroup.getSubject()).isNotEqualTo(request.getSubject());
+        assertThat(studyGroup.getContents()).isNotEqualTo(request.getContents());
+        assertThat(studyGroup.getContentsDetail()).isNotEqualTo(request.getContentsDetail());
+        assertThat(studyGroup.getStudyStartDt()).isNotEqualTo(request.getStudyStartDt());
+        assertThat(studyGroup.getStudyEndDt()).isNotEqualTo(request.getStudyEndDt());
+        assertThat(studyGroup.getMaxSize()).isNotEqualTo(request.getMaxSize());
+        assertThat(studyGroup.getPrice()).isNotEqualTo(request.getPrice());
+        assertThat(studyGroup.getRecruitmentStartDt()).isNotEqualTo(request.getRecruitmentStartDt());
+        assertThat(studyGroup.getRecruitmentEndDt()).isNotEqualTo(request.getRecruitmentEndDt());
+        assertThat(studyGroup.getLeader().getId()).isEqualTo(request.getMemberId());
+
+    }
+
+    @DisplayName("스터디 그룹 수정 실패 - 수정하려는 사용자와 스터디 그룹을 만든사람 정보가 다른 경우")
+    @Test
+    @Transactional
+    void updateStudyGroupFailed() {
+        //given
+
+        Member member1 = createMember("donghyeon", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+        Member member2 = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member2.getId(),
+                LocalDateTime.of(2023, 10, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject", "contents");
+
+        //when
+        StudyGroupDto response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+        //
+        assertThat(studyGroup.getLeader().getEmail()).isNotEqualTo("다른 아이디");
+
+    }
+
+
     /**
      *
      * @param name
@@ -292,6 +366,29 @@ class StudyGroupServiceTest {
                 .build();
     }
 
+    /**
+     *
+     * @param studyStartDt
+     * @param studyEndDt
+     * @param recruitmentStartDt
+     * @param recruitmentEndDt
+     * @param subject
+     * @param contents
+     * @return
+     */
+    private UpdateStudyGroupRequest updateStudyGroupRequest(LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt, String subject, String contents, String contentsDetail, int maxSize, long price) {
+        return UpdateStudyGroupRequest.builder()
+                .subject(subject)
+                .contents(contents)
+                .contentsDetail(contentsDetail)
+                .maxSize(maxSize)
+                .price(price)
+                .studyStartDt(studyStartDt)
+                .studyEndDt(studyEndDt)
+                .recruitmentStartDt(recruitmentStartDt)
+                .recruitmentEndDt(recruitmentEndDt)
+                .build();
+    }
     /**
      *
      * 토큰 인증을 위한 인증 기능 메서드

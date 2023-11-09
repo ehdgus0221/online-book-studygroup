@@ -2,6 +2,7 @@ package com.project.bookstudy.study_group.domain;
 
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
+import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,6 +71,19 @@ public class StudyGroup {
                 .price(studyGroupParam.getPrice())
                 .maxSize(studyGroupParam.getMaxSize())
                 .build();
+    }
+
+    public void update(UpdateStudyGroupParam param) {
+
+        this.subject = param.getSubject();
+        this.contents = param.getContents();
+        this.contentsDetail = param.getContentsDetail();
+        this.maxSize = param.getMaxSize();
+        this.price = param.getPrice();
+        this.studyStartDt = param.getStudyStartDt();
+        this.studyEndDt = param.getStudyEndDt();
+        this.recruitmentStartDt = param.getRecruitmentStartDt();
+        this.recruitmentEndDt = param.getRecruitmentEndDt();
     }
 
 }
