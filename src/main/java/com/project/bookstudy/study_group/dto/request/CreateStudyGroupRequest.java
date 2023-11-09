@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreateStudyGroupRequest {
 
+    private Long memberId;
+
     @NotBlank(message = "validation.subject.required")
     private String subject;
 
@@ -51,8 +53,9 @@ public class CreateStudyGroupRequest {
     private LocalDateTime recruitmentStartDt;
 
     @Builder
-    private CreateStudyGroupRequest(String subject, String contents, String contentsDetail, int maxSize, Long price, LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt) {
+    private CreateStudyGroupRequest(Long memberId, String subject, String contents, String contentsDetail, int maxSize, Long price, LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt) {
 
+        this.memberId = memberId;
         this.subject = subject;
         this.contents = contents;
         this.contentsDetail = contentsDetail;
