@@ -296,6 +296,34 @@ class StudyGroupServiceTest {
 
     }
 
+    @DisplayName("스터디 그룹 수정 실패 - 수정하려는 사용자와 스터디 그룹을 만든사람 정보가 다른 경우")
+    @Test
+    @Transactional
+    void updateStudyGroupFailed() {
+        //given
+
+        Member member1 = createMember("donghyeon", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+        Member member2 = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member2.getId(),
+                LocalDateTime.of(2023, 10, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject", "contents");
+
+        //when
+        StudyGroupDto response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+        //
+        assertThat(studyGroup.getLeader().getEmail()).isNotEqualTo("다른 아이디");
+
+    }
+
 
     /**
      *
