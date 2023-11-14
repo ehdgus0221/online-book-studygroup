@@ -5,6 +5,7 @@ import com.project.bookstudy.common.exception.MemberException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
+import com.project.bookstudy.study_group.domain.StudyGroupStatus;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
@@ -324,6 +325,30 @@ class StudyGroupServiceTest {
 
     }
 
+    @DisplayName("스터디 그룹 삭제 (= 모집 취소)")
+    @Test
+    @Transactional
+    void cancelSuccess() {
+        //given
+
+        Member member1 = createMember("스터디 리더", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member1.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroup studyGroup = request.toCreateServiceParam().toEntityWithLeader(member1);
+        studyGroupRepository.save(studyGroup);
+
+        //when
+        studyGroupService.deleteStudyGroup(studyGroup.getId(), authentication);
+
+        //then
+        assertThat(studyGroup.getStatus()).isEqualTo(StudyGroupStatus.RECRUIT_CANCEL);
+    }
 
     /**
      *
