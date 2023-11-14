@@ -79,4 +79,11 @@ public class StudyGroupController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStudyGroup(@PathVariable("id") Long studyGroupId
+            , Authentication authentication) {
+        studyGroupService.cancelStudyGroup(studyGroupId, authentication);
+        return ResponseEntity.ok().build();
+    }
+
 }
