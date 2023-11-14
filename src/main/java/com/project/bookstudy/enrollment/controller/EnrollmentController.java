@@ -21,8 +21,9 @@ public class EnrollmentController {
      * @param authentication
      * 스터디 그룹 신청하기
      */
-    @PostMapping
-    public ResponseEntity<CreateEnrollmentResponse> createEnrollment(@RequestParam Long StudyGroupId, Authentication authentication) {
-        return ResponseEntity.ok(enrollmentService.enroll(StudyGroupId, authentication));
+    @PostMapping("/{studyGroupId}")
+    public ResponseEntity<Void> createEnrollment(@PathVariable Long studyGroupId, Authentication authentication) {
+        enrollmentService.enroll(studyGroupId,authentication);
+        return ResponseEntity.ok().build();
     }
 }
