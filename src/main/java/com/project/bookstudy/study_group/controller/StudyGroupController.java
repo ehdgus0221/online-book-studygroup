@@ -79,6 +79,12 @@ public class StudyGroupController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     *
+     * @param studyGroupId
+     * @param authentication
+     * 스터디그룹 삭제 (소프트 삭제)
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudyGroup(@PathVariable("id") Long studyGroupId
             , Authentication authentication) {
