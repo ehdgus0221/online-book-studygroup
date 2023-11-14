@@ -1,5 +1,6 @@
 package com.project.bookstudy.study_group.domain;
 
+import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
@@ -84,6 +85,25 @@ public class StudyGroup {
         this.studyEndDt = param.getStudyEndDt();
         this.recruitmentStartDt = param.getRecruitmentStartDt();
         this.recruitmentEndDt = param.getRecruitmentEndDt();
+    }
+
+    public boolean isStarted() {
+        if (LocalDateTime.now().isAfter(studyStartDt)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 스터디 시작 날짜 이후에는 cancel 불가
+     */
+    public void cancel() {
+
+        if (isStarted()) {
+            throw new IllegalStateException(ErrorCode.STUDY_GROUP_CANCEL_FAIL.getDescription());
+        }
+
+        status = StudyGroupStatus.RECRUIT_CANCEL;
     }
 
 }

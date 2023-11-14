@@ -5,6 +5,7 @@ import com.project.bookstudy.common.exception.MemberException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
+import com.project.bookstudy.study_group.domain.StudyGroupStatus;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
@@ -324,6 +325,56 @@ class StudyGroupServiceTest {
 
     }
 
+    @DisplayName("스터디 그룹 삭제 성공 (= 모집 취소)")
+    @Test
+    @Transactional
+    void cancelSuccess() {
+        //given
+
+        Member member1 = createMember("스터디 리더", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member1.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroup studyGroup = request.toCreateServiceParam().toEntityWithLeader(member1);
+        studyGroupRepository.save(studyGroup);
+
+        //when
+        studyGroupService.deleteStudyGroup(studyGroup.getId(), authentication);
+
+        //then
+        assertThat(studyGroup.getStatus()).isEqualTo(StudyGroupStatus.RECRUIT_CANCEL);
+    }
+
+    @DisplayName("스터디 그룹 삭제 실패 - 스터디가 시작된 경우 삭제 불가 (현재 날짜 > 스터디 시작 날짜)")
+    @Test
+    @Transactional
+    void cancelFailed() {
+        //given
+
+        Member member1 = createMember("스터디 리더", "dlaehdgus23@naver.com");
+        memberRepository.save(member1);
+        Authentication authentication = createAuthentication();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(member1.getId(),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 10, 30, 0, 0, 0), "subject", "contents");
+        StudyGroup studyGroup = request.toCreateServiceParam().toEntityWithLeader(member1);
+        studyGroupRepository.save(studyGroup);
+
+        //when
+        if (!studyGroup.isStarted()) {
+            studyGroupService.deleteStudyGroup(studyGroup.getId(), authentication);
+        }
+        //then
+        assertThat(studyGroup.getStatus()).isNotEqualTo(StudyGroupStatus.RECRUIT_CANCEL);
+    }
 
     /**
      *

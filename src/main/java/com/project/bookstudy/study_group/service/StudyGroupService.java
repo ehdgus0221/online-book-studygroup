@@ -67,4 +67,24 @@ public class StudyGroupService {
 
         studyGroup.update(updateParam);
     }
+
+    @Transactional
+    public void deleteStudyGroup(Long studyGroupId, Authentication authentication) {
+
+        StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.USER_NOT_FOUND.getDescription()));
+
+        Member member = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
+
+        if (studyGroup.getLeader().getId() != member.getId()) {
+            throw new IllegalArgumentException(ErrorCode.STUDY_GROUP_UPDATE_FAIL.getDescription());
+        }
+
+        if (studyGroup.isStarted()) {
+            throw new IllegalStateException(ErrorCode.STUDY_GROUP_CANCEL_FAIL.getDescription());
+        }
+
+        studyGroup.cancel();
+    }
 }
