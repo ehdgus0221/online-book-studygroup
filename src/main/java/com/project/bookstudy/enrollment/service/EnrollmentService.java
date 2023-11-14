@@ -24,10 +24,10 @@ public class EnrollmentService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    @DistributedLock(key = "#request.studyGroupId")
-    public void enroll(Long StudyGroupId, Authentication authentication) {
+    @DistributedLock(key = "#studyGroupId")
+    public void enroll(Long studyGroupId, Authentication authentication) {
         //Collection Fetch Join → Batch Size 적용 고려
-        StudyGroup studyGroup = studyGroupRepository.findById(StudyGroupId)
+        StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription()));
 
         Member member = memberRepository.findByEmail(authentication.getName())

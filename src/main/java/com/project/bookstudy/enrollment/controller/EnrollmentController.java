@@ -17,7 +17,7 @@ public class EnrollmentController {
 
     /**
      *
-     * @param StudyGroupId
+     * @param studyGroupId
      * @param authentication
      * 스터디 그룹 신청하기
      */
