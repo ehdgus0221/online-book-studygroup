@@ -82,7 +82,7 @@ public class StudyGroupController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudyGroup(@PathVariable("id") Long studyGroupId
             , Authentication authentication) {
-        studyGroupService.cancelStudyGroup(studyGroupId, authentication);
+        studyGroupService.deleteStudyGroup(studyGroupId, authentication);
         return ResponseEntity.ok().build();
     }
 
