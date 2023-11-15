@@ -57,6 +57,18 @@ public class EnrollmentService {
         return enrollment.getId();
     }
 
+    @Transactional
+    public void cancel(Long enrollmentId, Authentication authentication) {
+
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.ENROLLMENT_NOT_FOUND.getDescription()));
+
+        if (enrollment.getStudyGroup().isStarted()) {
+            throw new IllegalStateException(ErrorCode.STUDY_GROUP_CANCEL_FAIL.getDescription());
+        }
+        enrollment.cancel();
+    }
+
     // 중복 검사
     public void validate(Member member, StudyGroup studyGroup) {
         if (studyGroup.getLeader().getId() == member.getId()) {

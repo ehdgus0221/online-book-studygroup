@@ -59,4 +59,12 @@ public class Enrollment {
         return enrollment;
 
     }
+
+    public void cancel() {
+        if (status == EnrollmentStatus.CANCEL) return;
+
+        Long refundPrice = payment.refund();
+        member.chargePoint(refundPrice);
+        status = EnrollmentStatus.CANCEL;
+    }
 }

@@ -57,4 +57,11 @@ public class Payment {
                 .build();
         return payment;
     }
+
+    public Long refund() {
+        if (status == PaymentStatus.REFUNDED) return 0L;
+
+        this.status = PaymentStatus.REFUNDED;
+        return paymentPrice;
+    }
 }
