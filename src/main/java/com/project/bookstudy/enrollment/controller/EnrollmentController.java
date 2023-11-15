@@ -3,6 +3,7 @@ package com.project.bookstudy.enrollment.controller;
 import com.project.bookstudy.enrollment.dto.CreateEnrollmentResponse;
 import com.project.bookstudy.enrollment.service.EnrollmentService;
 import com.project.bookstudy.study_group.dto.EnrollmentDto;
+import com.project.bookstudy.study_group.dto.request.EnrollmentSearchCond;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
