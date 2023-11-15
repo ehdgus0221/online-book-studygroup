@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @Slf4j
 @SpringBootTest
@@ -94,6 +95,38 @@ public class EnrollmentServiceTest {
         assertThat(findEnrollment.getId()).isEqualTo(enrollmentId);
 
     }
+
+    @DisplayName("스터디 그룹 신청 실패 - 스터디 그룹장(리더)는 신청 불가")
+    @Test
+    void enrollFailed1() {
+
+        //given
+        Long memberPoint = 50_000L;
+
+        Member leader = createMember("스터디 리더", "leader@naver.com");
+        Member member = createMember("스터디 멤버", "member@naver.com");
+
+        member.chargePoint(memberPoint);
+        Authentication authentication1 = createAuthenticationLeader();
+
+        memberRepository.saveAll(List.of(leader, member));
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response = studyGroupService.createStudyGroup(authentication1, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+        //when
+        //then
+        assertThatThrownBy(() -> enrollmentService.enroll(studyGroup.getId(), authentication1))
+                .isInstanceOf(MemberException.class)
+                .hasMessageContaining(ErrorCode.LEADER_ENROLLMENT_ERROR.getDescription());
+    }
+
 
     /**
      * @param name
