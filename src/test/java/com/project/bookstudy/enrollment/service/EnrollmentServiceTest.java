@@ -206,7 +206,7 @@ public class EnrollmentServiceTest {
     }
 
     @Test
-    @DisplayName("스터디 그룹 전체조회 성공")
+    @DisplayName("스터디 그룹 신청내역 전체조회 성공")
     @Transactional
     void getEnrollmentListSuccess() {
         //given
@@ -258,6 +258,58 @@ public class EnrollmentServiceTest {
 
     }
 
+    @Test
+    @DisplayName("스터디 그룹 신청내역 전체조회 실패 - 신청내역 개수가 일치하지 않는 경우")
+    @Transactional
+    void getEnrollmentListFailed() {
+        //given
+        Member member1 = createMember("member","member@naver.com");
+        memberRepository.save(member1);
+
+        Member leader1 = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader1);
+
+        Authentication authentication1 = createAuthenticationLeader();
+        Authentication authentication2 = createAuthenticationMember();
+
+        Long originMemberPoint = 1000000L;
+        member1.chargePoint(originMemberPoint);
+
+        CreateStudyGroupRequest request1 = createStudyCreateGroupRequest(leader1.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication1, request1.toStudyGroupParam());
+
+        CreateStudyGroupRequest request2 = createStudyCreateGroupRequest(leader1.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response2 = studyGroupService.createStudyGroup(authentication1, request1.toStudyGroupParam());
+
+        StudyGroup studyGroup1 = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        StudyGroup studyGroup2 = studyGroupRepository.findById(response2.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+
+        Long enrollmentId1 = enrollmentService.enroll(studyGroup1.getId(), authentication2);
+        Long enrollmentId2 = enrollmentService.enroll(studyGroup2.getId(), authentication2);
+
+        Optional<Enrollment> enrollment1 = enrollmentRepository.findById(enrollmentId1);
+        Optional<Enrollment> enrollment2 = enrollmentRepository.findById(enrollmentId2);
+
+        List<Optional<Enrollment>> enrollmentList = new ArrayList<>();
+        enrollmentList.add(enrollment1);
+        enrollmentList.add(enrollment2);
+
+
+        //then
+        assertThat(enrollmentList.size()).isNotEqualTo(1);
+
+    }
 
     /**
      * @param name
