@@ -19,7 +19,7 @@ public class Enrollment {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private EnrollmentStatus enrollmentStatus;
+    private EnrollmentStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -36,7 +36,7 @@ public class Enrollment {
     @Builder(access = AccessLevel.PRIVATE)
     public Enrollment(Member member, StudyGroup studyGroup, Payment payment) {
 
-        this.enrollmentStatus = EnrollmentStatus.RESERVED;
+        this.status = EnrollmentStatus.RESERVED;
         this.member = member;
         this.studyGroup = studyGroup;
         this.payment = payment;

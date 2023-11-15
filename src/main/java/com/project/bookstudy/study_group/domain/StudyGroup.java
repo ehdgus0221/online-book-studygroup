@@ -128,7 +128,7 @@ public class StudyGroup {
     public boolean isApplicable() {
 
         long count = enrollments.stream()
-                .filter((i) -> i.getEnrollmentStatus() == EnrollmentStatus.RESERVED)
+                .filter((i) -> i.getStatus() == EnrollmentStatus.RESERVED)
                 .count();
 
         if ( count < maxSize) {

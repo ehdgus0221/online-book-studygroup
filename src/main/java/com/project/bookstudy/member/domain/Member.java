@@ -56,4 +56,8 @@ public class Member {
         this.point -= point;
     }
 
+    public void chargePoint(Long point) {
+        this.point += point;
+    }
+
 }

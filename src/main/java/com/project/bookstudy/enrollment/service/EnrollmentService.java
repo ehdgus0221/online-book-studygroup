@@ -25,7 +25,7 @@ public class EnrollmentService {
 
     @Transactional
     @DistributedLock(key = "#studyGroupId")
-    public void enroll(Long studyGroupId, Authentication authentication) {
+    public Long enroll(Long studyGroupId, Authentication authentication) {
         //Collection Fetch Join → Batch Size 적용 고려
         StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription()));
@@ -54,6 +54,7 @@ public class EnrollmentService {
         Enrollment enrollment = Enrollment.createEnrollment(member, studyGroup);
         enrollmentRepository.save(enrollment);
 
+        return enrollment.getId();
     }
 
     // 중복 검사

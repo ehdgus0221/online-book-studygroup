@@ -22,8 +22,7 @@ public class EnrollmentController {
      * 스터디 그룹 신청하기
      */
     @PostMapping("/{studyGroupId}")
-    public ResponseEntity<Void> createEnrollment(@PathVariable Long studyGroupId, Authentication authentication) {
-        enrollmentService.enroll(studyGroupId,authentication);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Long> createEnrollment(@PathVariable Long studyGroupId, Authentication authentication) {
+        return ResponseEntity.ok(enrollmentService.enroll(studyGroupId,authentication));
     }
 }
