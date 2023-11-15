@@ -35,4 +35,14 @@ public class EnrollmentController {
         enrollmentService.cancel(enrollmentId, authentication);
         return ResponseEntity.ok().build();
     }
+
+    /**
+     *
+     * @param enrollmentId
+     * 스터디 그룹 신청내역 단일조회
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<EnrollmentDto> getEnrollment(@PathVariable("id") Long enrollmentId) {
+        return ResponseEntity.ok(enrollmentService.getEnrollment(enrollmentId));
+    }
 }
