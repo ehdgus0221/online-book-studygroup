@@ -66,6 +66,15 @@ public class EnrollmentService {
         if (enrollment.getStudyGroup().isStarted()) {
             throw new IllegalStateException(ErrorCode.STUDY_GROUP_CANCEL_FAIL.getDescription());
         }
+
+        Member member = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.USER_NOT_FOUND.getDescription()));
+
+        // 본인이 신청한 내역이 아니면 신청 취소 불가
+        if (enrollment.getMember().getId() != member.getId()) {
+            throw new MemberException(ErrorCode.ENROLLMENT_CANCEL_FAIL);
+        }
+
         enrollment.cancel();
     }
 
