@@ -2,6 +2,7 @@ package com.project.bookstudy.enrollment.controller;
 
 import com.project.bookstudy.enrollment.dto.CreateEnrollmentResponse;
 import com.project.bookstudy.enrollment.service.EnrollmentService;
+import com.project.bookstudy.study_group.dto.EnrollmentDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
