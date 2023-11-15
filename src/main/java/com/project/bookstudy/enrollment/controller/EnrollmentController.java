@@ -4,6 +4,9 @@ import com.project.bookstudy.enrollment.dto.CreateEnrollmentResponse;
 import com.project.bookstudy.enrollment.service.EnrollmentService;
 import com.project.bookstudy.study_group.dto.EnrollmentDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -45,5 +48,18 @@ public class EnrollmentController {
     @GetMapping("/{id}")
     public ResponseEntity<EnrollmentDto> getEnrollment(@PathVariable("id") Long enrollmentId) {
         return ResponseEntity.ok(enrollmentService.getEnrollment(enrollmentId));
+    }
+
+    /**
+     *
+     * @param pageable
+     * @param cond
+     * 스터디 그룹 신청내역 전체조회
+     */
+    @GetMapping
+    public Page<EnrollmentDto> getEnrollmentList(@PageableDefault Pageable pageable,
+                                                 @ModelAttribute EnrollmentSearchCond cond) {
+        //응답 정보 선별 하고싶으면, Dto에서 정보 선별 및 응답 객체 생성
+        return enrollmentService.getEnrollmentList(pageable, cond.getMemberId());
     }
 }
