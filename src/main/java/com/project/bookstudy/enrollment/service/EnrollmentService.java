@@ -8,6 +8,7 @@ import com.project.bookstudy.enrollment.repository.EnrollmentRepository;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
+import com.project.bookstudy.study_group.dto.EnrollmentDto;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -76,6 +77,14 @@ public class EnrollmentService {
         }
 
         enrollment.cancel();
+    }
+
+    public EnrollmentDto getEnrollment(Long enrollmentId) {
+        Enrollment enrollment = enrollmentRepository.findByIdWithAll(enrollmentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.ENROLLMENT_NOT_FOUND.getDescription()));
+
+        //스터디 정보(StudyDto), 신청일(Payment 에 있음), PaymentDto 이렇게 내려 준다.
+        return EnrollmentDto.fromEntity(enrollment);
     }
 
     // 중복 검사
