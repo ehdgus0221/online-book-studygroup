@@ -60,7 +60,7 @@ public class EnrollmentController {
     @GetMapping
     public ResponseEntity<Page<EnrollmentDto>> getEnrollmentList(@PageableDefault Pageable pageable,
                                                  @ModelAttribute EnrollmentSearchCond cond) {
-        //응답 정보 선별 하고싶으면, Dto에서 정보 선별 및 응답 객체 생성
-        return ResponseEntity.ok(enrollmentService.getEnrollmentList(pageable, cond.getMemberId()));
+        Page<EnrollmentDto> enrollmentList = enrollmentService.getEnrollmentList(pageable, cond.getMemberId());
+        return ResponseEntity.ok(enrollmentList);
     }
 }

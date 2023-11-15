@@ -89,6 +89,13 @@ public class EnrollmentService {
         return EnrollmentDto.fromEntity(enrollment);
     }
 
+    public Page<EnrollmentDto> getEnrollmentList(Pageable pageable, Long memberId) {
+        Page<Enrollment> enrollments = enrollmentRepository.searchEnrollment(pageable, memberId);
+        Page<EnrollmentDto> enrollmentDtoList = enrollments
+                .map(content -> EnrollmentDto.fromEntity(content));
+        return enrollmentDtoList;
+    }
+
     // 중복 검사
     public void validate(Member member, StudyGroup studyGroup) {
         if (studyGroup.getLeader().getId() == member.getId()) {
@@ -106,10 +113,5 @@ public class EnrollmentService {
         }
     }
 
-    public Page<EnrollmentDto> getEnrollmentList(Pageable pageable, Long memberId) {
-        Page<Enrollment> enrollments = enrollmentRepository.searchEnrollment(pageable, memberId);
-        Page<EnrollmentDto> enrollmentDtoList = enrollments
-                .map(content -> EnrollmentDto.fromEntity(content));
-        return enrollmentDtoList;
-    }
+
 }

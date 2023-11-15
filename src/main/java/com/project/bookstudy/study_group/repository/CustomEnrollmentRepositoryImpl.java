@@ -41,21 +41,40 @@ public class CustomEnrollmentRepositoryImpl implements CustomEnrollmentRepositor
 
         QMember leader = new QMember("m");
 
-        List<Enrollment> enrollmentList = jpaQueryFactory.selectFrom(enrollment)
-                .join(enrollment.studyGroup, studyGroup).fetchJoin()
-                .join(studyGroup.leader, leader).fetchJoin()
-                .join(enrollment.payment, payment).fetchJoin()
-                .join(enrollment.member, member).fetchJoin()
-                .where(member.id.eq(memberId))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+        if (memberId != null) {
+            List<Enrollment> enrollmentList = jpaQueryFactory.selectFrom(enrollment)
+                    .join(enrollment.studyGroup, studyGroup).fetchJoin()
+                    .join(studyGroup.leader, leader).fetchJoin()
+                    .join(enrollment.payment, payment).fetchJoin()
+                    .join(enrollment.member, member).fetchJoin()
+                    .where(member.id.eq(memberId))
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
+                    .fetch();
 
-        Long total = jpaQueryFactory.select(enrollment.count())
-                .from(enrollment)
-                .where(enrollment.member.id.eq(memberId))
-                .fetchOne();
+            Long total = jpaQueryFactory.select(enrollment.count())
+                    .from(enrollment)
+                    .where(enrollment.member.id.eq(memberId))
+                    .fetchOne();
 
-        return new PageImpl<>(enrollmentList, pageable, total);
+            return new PageImpl<>(enrollmentList, pageable, total);
+        } else {
+            List<Enrollment> enrollmentList = jpaQueryFactory.selectFrom(enrollment)
+                    .join(enrollment.studyGroup, studyGroup).fetchJoin()
+                    .join(studyGroup.leader, leader).fetchJoin()
+                    .join(enrollment.payment, payment).fetchJoin()
+                    .join(enrollment.member, member).fetchJoin()
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
+                    .fetch();
+
+            Long total = jpaQueryFactory.select(enrollment.count())
+                    .from(enrollment)
+                    .fetchOne();
+
+            return new PageImpl<>(enrollmentList, pageable, total);
+        }
+
+
     }
 }
