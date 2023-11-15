@@ -25,4 +25,14 @@ public class EnrollmentController {
     public ResponseEntity<Long> createEnrollment(@PathVariable Long studyGroupId, Authentication authentication) {
         return ResponseEntity.ok(enrollmentService.enroll(studyGroupId,authentication));
     }
+
+    /**
+     * @param enrollmentId
+     * 스터디 그룹 취소하기
+     */
+    @DeleteMapping("/{enrollmentId}")
+    public ResponseEntity<Void> cancelEnrollment(@PathVariable("enrollmentId") Long enrollmentId, Authentication authentication) {
+        enrollmentService.cancel(enrollmentId, authentication);
+        return ResponseEntity.ok().build();
+    }
 }
