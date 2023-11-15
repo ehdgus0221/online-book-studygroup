@@ -11,6 +11,8 @@ import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.dto.EnrollmentDto;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,5 +104,12 @@ public class EnrollmentService {
                 throw new IllegalStateException(ErrorCode.DUPLICATE_ENROLLMENT_ERROR.getDescription());
             }
         }
+    }
+
+    public Page<EnrollmentDto> getEnrollmentList(Pageable pageable, Long memberId) {
+        Page<Enrollment> enrollments = enrollmentRepository.searchEnrollment(pageable, memberId);
+        Page<EnrollmentDto> enrollmentDtoList = enrollments
+                .map(content -> EnrollmentDto.fromEntity(content));
+        return enrollmentDtoList;
     }
 }
