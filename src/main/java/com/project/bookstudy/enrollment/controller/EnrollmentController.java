@@ -58,9 +58,9 @@ public class EnrollmentController {
      * 스터디 그룹 신청내역 전체조회
      */
     @GetMapping
-    public Page<EnrollmentDto> getEnrollmentList(@PageableDefault Pageable pageable,
+    public ResponseEntity<Page<EnrollmentDto>> getEnrollmentList(@PageableDefault Pageable pageable,
                                                  @ModelAttribute EnrollmentSearchCond cond) {
         //응답 정보 선별 하고싶으면, Dto에서 정보 선별 및 응답 객체 생성
-        return enrollmentService.getEnrollmentList(pageable, cond.getMemberId());
+        return ResponseEntity.ok(enrollmentService.getEnrollmentList(pageable, cond.getMemberId()));
     }
 }
