@@ -168,6 +168,41 @@ public class EnrollmentServiceTest {
         assertThat(enrollmentDto.getStudyGroup().getId()).isEqualTo(enrollment.getStudyGroup().getId());
     }
 
+    @Test
+    @DisplayName("스터디 그룹 단일조회 실패 - 신청 id 존재하지 않는 경우")
+    @Transactional
+    void getEnrollmentFailed() {
+        //given
+        Member member1 = createMember("member","member@naver.com");
+        memberRepository.save(member1);
+
+        Member leader1 = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader1);
+
+        Authentication authentication1 = createAuthenticationLeader();
+        Authentication authentication2 = createAuthenticationMember();
+
+        Long originMemberPoint = 1000000L;
+        member1.chargePoint(originMemberPoint);
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader1.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response = studyGroupService.createStudyGroup(authentication1, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+
+        Long enrollmentId = enrollmentService.enroll(studyGroup.getId(), authentication2);
+
+        //when
+        //then
+        assertThat(enrollmentRepository.findById(enrollmentId + 1)).isEmpty();
+
+    }
+
 
 
     /**
