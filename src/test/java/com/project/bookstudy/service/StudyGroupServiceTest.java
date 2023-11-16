@@ -1,4 +1,4 @@
-package com.project.bookstudy.study_group.service;
+package com.project.bookstudy.service;
 
 import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.common.exception.MemberException;
@@ -10,6 +10,7 @@ import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
+import com.project.bookstudy.study_group.service.StudyGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

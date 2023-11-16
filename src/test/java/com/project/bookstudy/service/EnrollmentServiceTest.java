@@ -1,10 +1,11 @@
-package com.project.bookstudy.enrollment.service;
+package com.project.bookstudy.service;
 
 import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.common.exception.MemberException;
 import com.project.bookstudy.enrollment.domain.Enrollment;
 import com.project.bookstudy.enrollment.repository.EnrollmentRepository;
 import com.project.bookstudy.enrollment.repository.PaymentRepository;
+import com.project.bookstudy.enrollment.service.EnrollmentService;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
@@ -331,7 +332,8 @@ public class EnrollmentServiceTest {
      * @param recruitmentStartDt
      * @param recruitmentEndDt
      * @param subject
-     * @param contents           회원가입 request 값
+     * @param contents
+     * 회원가입 request 값
      */
     private CreateStudyGroupRequest createStudyCreateGroupRequest(Long memberId, LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt, String subject, String contents) {
         return CreateStudyGroupRequest.builder()
