@@ -6,16 +6,11 @@ import lombok.ToString;
 
 @Getter
 @ToString
+@Builder
 public class CreateCategoryRequest {
 
     private Long parentCategoryId;
     private Long studyGroupId;
     private String subject;
 
-    @Builder
-    private CreateCategoryRequest(Long parentCategoryId, Long studyGroupId, String subject) {
-        this.parentCategoryId = parentCategoryId;
-        this.studyGroupId = studyGroupId;
-        this.subject = subject;
-    }
 }

@@ -20,8 +20,6 @@ public class CategoryController {
     private final CategoryService categoryService;
     @PostMapping
     public ResponseEntity<CreateCategoryResponse> createCategory(@RequestBody CreateCategoryRequest request) {
-        Long categoryId = categoryService.createCategory(request);
-
-        return ResponseEntity.ok(CreateCategoryResponse(categoryId));
+        return ResponseEntity.ok(categoryService.createCategory(request));
     }
 }

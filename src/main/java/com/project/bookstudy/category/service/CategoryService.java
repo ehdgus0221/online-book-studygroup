@@ -2,6 +2,7 @@ package com.project.bookstudy.category.service;
 
 import com.project.bookstudy.category.domain.Category;
 import com.project.bookstudy.category.dto.CreateCategoryRequest;
+import com.project.bookstudy.category.dto.CreateCategoryResponse;
 import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.study_group.domain.StudyGroup;
@@ -21,7 +22,7 @@ public class CategoryService {
     private final StudyGroupRepository studyGroupRepository;
 
     @Transactional
-    public Long createCategory(CreateCategoryRequest request) {
+    public CreateCategoryResponse createCategory(CreateCategoryRequest request) {
         StudyGroup studyGroup = studyGroupRepository.findById(request.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription()));
 
@@ -34,6 +35,6 @@ public class CategoryService {
         Category category = Category.from(parentCategory, studyGroup, request.getSubject());
         categoryRepository.save(category);
 
-        return category.getId();
+        return CreateCategoryResponse.fromCategory(category);
     }
 }
