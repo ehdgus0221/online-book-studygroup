@@ -32,7 +32,7 @@ public enum ErrorCode {
     DUPLICATE_ENROLLMENT_ERROR("해당 스터디 그룹에 이미 신청한 상태입니다."),
     ENROLLMENT_NOT_FOUND("해당 신청 정보가 없습니다."),
     RECRUITMENT_DATE_END("모집 기간이 아닙니다."),
-    ENROLLMENT_CANCEL_FAIL("해당 스터디가 진행되면 신청 취소가 불가합니다."),
+    ENROLLMENT_CANCEL_FAIL("해당 스터디가 진행되면 신청 취소 실패했습니다."),
     STUDY_GROUP_UPDATE_FAIL("스터디그룹을 생성한 사람만 수정할 수 있습니다."),
     REFUND_FAIL("환불 실패");
 

@@ -1,5 +1,6 @@
 package com.project.bookstudy.member.domain;
 
+import com.project.bookstudy.common.dto.ErrorCode;
 import lombok.*;
 
 import javax.persistence.*;
@@ -48,6 +49,15 @@ public class Member {
 
     public void updateRefreshToken(String updateRefreshToken) {
         this.refreshToken = updateRefreshToken;
+    }
+
+    public void usePoint(Long point) {
+        if (this.point < point) throw new IllegalStateException(ErrorCode.POINT_NOT_ENOUGH.getDescription());
+        this.point -= point;
+    }
+
+    public void chargePoint(Long point) {
+        this.point += point;
     }
 
 }

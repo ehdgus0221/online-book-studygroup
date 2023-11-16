@@ -1,6 +1,8 @@
 package com.project.bookstudy.study_group.domain;
 
 import com.project.bookstudy.common.dto.ErrorCode;
+import com.project.bookstudy.enrollment.domain.Enrollment;
+import com.project.bookstudy.enrollment.domain.EnrollmentStatus;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
@@ -8,6 +10,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,12 @@ public class StudyGroup {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leader_id")
     private Member leader;
+
+    // 동시성 이슈 해결
+    @OneToMany(mappedBy = "studyGroup", cascade = CascadeType.ALL)
+    private List<Enrollment> enrollments = new ArrayList<>();
+
+    LocalDate nowDate = LocalDate.now();
 
     @Builder
     public StudyGroup(String subject, String contents, String contentsDetail, int maxSize, Long price, LocalDateTime studyStartDt, LocalDateTime studyEndDt
@@ -104,6 +113,28 @@ public class StudyGroup {
         }
 
         status = StudyGroupStatus.RECRUIT_CANCEL;
+    }
+
+    /**
+     * 모집 진행 기간인지 확인
+     */
+    public boolean isRecruitmentStarted() {
+        if (getRecruitmentStartDt().toLocalDate().minusDays(1).isBefore(nowDate)
+                && nowDate.isBefore(getRecruitmentEndDt().toLocalDate().plusDays(1))) {
+            return true;
+        } return false;
+    }
+
+    public boolean isApplicable() {
+
+        long count = enrollments.stream()
+                .filter((i) -> i.getStatus() == EnrollmentStatus.RESERVED)
+                .count();
+
+        if ( count < maxSize) {
+            return true;
+        }
+        return false;
     }
 
 }
