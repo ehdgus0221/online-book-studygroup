@@ -44,4 +44,18 @@ public class Category extends BaseTimeEntity {
         this.studyGroup = studyGroup;
         this.subject = subject;
     }
+
+    public static Category from(Category parentCategory, StudyGroup studyGroup, String subject) {
+        Category category = Category.builder()
+                .parentCategory(parentCategory)
+                .subject(subject)
+                .studyGroup(studyGroup)
+                .build();
+
+        //양방향 연관관계
+        if (parentCategory != null) {
+            parentCategory.getChildCategories().add(category);
+        }
+        return category;
+    }
 }
