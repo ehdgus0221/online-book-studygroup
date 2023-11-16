@@ -1,5 +1,6 @@
 package com.project.bookstudy.category.controller;
 
+import com.project.bookstudy.category.dto.CreateCategoryRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
