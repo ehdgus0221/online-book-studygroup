@@ -1,6 +1,7 @@
 package com.project.bookstudy.category.service;
 
 import com.project.bookstudy.category.domain.Category;
+import com.project.bookstudy.category.dto.CategoryDto;
 import com.project.bookstudy.category.dto.CreateCategoryRequest;
 import com.project.bookstudy.category.dto.CreateCategoryResponse;
 import com.project.bookstudy.category.repository.CategoryRepository;
@@ -9,8 +10,12 @@ import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,5 +41,16 @@ public class CategoryService {
         categoryRepository.save(category);
 
         return CreateCategoryResponse.fromCategory(category);
+    }
+
+    //null 입력시 root Category List 반환
+    public List<CategoryDto> getRootOrChildCategoryList(@Nullable Long parentId) {
+        List<Category> rootOrChildCategories = categoryRepository.findRootOrChildByParentId(parentId);
+        List<CategoryDto> categoryDtoList = rootOrChildCategories
+                .stream()
+                .map(CategoryDto::fromEntity)
+                .collect(Collectors.toList());
+
+        return categoryDtoList;
     }
 }

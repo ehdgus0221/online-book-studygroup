@@ -1,5 +1,6 @@
 package com.project.bookstudy.category.controller;
 
+import com.project.bookstudy.category.dto.CategoryResponse;
 import com.project.bookstudy.category.dto.CreateCategoryRequest;
 import com.project.bookstudy.category.dto.CreateCategoryResponse;
 import com.project.bookstudy.category.service.CategoryService;
