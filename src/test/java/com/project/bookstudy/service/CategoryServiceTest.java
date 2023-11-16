@@ -84,7 +84,7 @@ public class CategoryServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("부모 카테고리 생성 실패 - CreateCategoryRequest를 통해 만든 카테고리와 다른 데이터를 넣어서 비교")
+    @DisplayName("부모 카테고리 생성 실패 - CreateCategoryRequest를 통해 만든 부모 카테고리와 다른 데이터를 넣어서 비교")
     void createParentCategoryFailed() {
         //given
         Member member = createMember("member", "member@naver.com");
@@ -111,8 +111,6 @@ public class CategoryServiceTest {
         Category findCategory = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
 
-        assertThat(findCategory).isNotNull();
-        assertThat(findCategory.getParentCategory()).isNull();
         assertThat(findCategory.getSubject()).isNotEqualTo("subject2");
         assertThat(findCategory.getStudyGroup().getId()).isNotEqualTo(categoryRequest.getStudyGroupId() + 1);
     }
@@ -157,6 +155,45 @@ public class CategoryServiceTest {
         assertThat(findCategory.getSubject()).isEqualTo(categoryRequest.getSubject());
         assertThat(findCategory.getIsDeleted()).isEqualTo(Boolean.FALSE);
         assertThat(parentCategory.getChildCategories().contains(findCategory)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("자식 카테고리 생성 실패 - CreateCategoryRequest를 통해 만든 자식 카테고리와 다른 데이터를 넣어서 비교")
+    void createChildCategoryFailed() {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(member);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+        // 부모 카테고리 생성
+        Category parentCategory = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
+
+        // 자식 카테고리 생성
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(parentCategory.getId(), studyGroup);
+
+
+        //when
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+
+        //then
+        Category findCategory = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        assertThat(findCategory.getId()).isNotEqualTo(categoryId + 1);
+        assertThat(findCategory.getSubject()).isNotEqualTo("subject2");
     }
 
     /**
