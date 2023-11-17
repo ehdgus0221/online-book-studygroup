@@ -399,6 +399,37 @@ public class CategoryServiceTest {
         assertThat(deletedCategory).isNotPresent();
     }
 
+    @Test
+    @Transactional
+    @DisplayName("카테고리 삭제 실패 - 카테고리 id가 조회되지 않는 경우")
+    void deleteParentCategoryFailed() {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(member);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+        // 부모 카테고리 생성
+        Category parentCategory = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
+
+        //when
+        //then
+        assertThatThrownBy(() -> categoryService.deleteCategory(parentCategory.getId() + 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(ErrorCode.CATEGORY_NOT_FOUND.getDescription());
+    }
+
     /**
      * @param name
      * @param email 회원가입 메서드
