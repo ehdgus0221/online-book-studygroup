@@ -29,4 +29,10 @@ public class CategoryController {
         CategoryResponse response = categoryService.getRootOrChildCategoryList(parentId);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping
+    public ResponseEntity<Void> updateCategory(UpdateCategoryRequest request) {
+        categoryService.updateCategory(request);
+        return ResponseEntity.ok().build();
+    }
 }
