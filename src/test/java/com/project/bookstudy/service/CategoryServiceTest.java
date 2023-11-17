@@ -3,6 +3,7 @@ package com.project.bookstudy.service;
 import com.project.bookstudy.category.domain.Category;
 import com.project.bookstudy.category.dto.CategoryResponse;
 import com.project.bookstudy.category.dto.CreateCategoryRequest;
+import com.project.bookstudy.category.dto.UpdateCategoryRequest;
 import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.category.service.CategoryService;
 import com.project.bookstudy.common.dto.ErrorCode;
@@ -273,6 +274,50 @@ public class CategoryServiceTest {
 
     }
 
+    @Test
+    @Transactional
+    @DisplayName("카테고리 수정 성공")
+    void updateParentCategorySuccess() {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(member);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+        // 부모 카테고리 생성
+        Category parentCategory = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
+
+        // 자식 카테고리 생성
+        CreateCategoryRequest categoryRequest1 = makeCreateCategoryRequest(parentCategory.getId(), studyGroup);
+        Long categoryId1 = categoryService.createCategory(categoryRequest1).getCategoryId();
+
+        CreateCategoryRequest categoryRequest2 = makeCreateCategoryRequest(parentCategory.getId(), studyGroup);
+        Long categoryId2 = categoryService.createCategory(categoryRequest2).getCategoryId();
+
+        Category category = categoryRepository.findById(categoryId1)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        //when
+        UpdateCategoryRequest updateCategoryRequest = makeUpdateCategoryRequest(categoryId2, "수정 완료1");
+        categoryService.updateCategory(categoryId1, updateCategoryRequest);
+
+        //then
+        assertThat(updateCategoryRequest.getParentCategoryId()).isEqualTo(categoryId2);
+        assertThat(updateCategoryRequest.getSubject()).isEqualTo("수정 완료1");
+
+    }
+
     /**
      * @param name
      * @param email 회원가입 메서드
@@ -337,6 +382,13 @@ public class CategoryServiceTest {
                 .parentCategoryId(parentId)
                 .subject("subject")
                 .studyGroupId(studyGroup.getId())
+                .build();
+    }
+
+    public static UpdateCategoryRequest makeUpdateCategoryRequest(Long parentId, String subject) {
+        return UpdateCategoryRequest.builder()
+                .parentCategoryId(parentId)
+                .subject(subject)
                 .build();
     }
 }
