@@ -32,4 +32,9 @@ public class CategoryController {
         categoryService.updateCategory(categoryId, request);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteCategory(@PathVariable("id") Long categoryId) {
+        categoryService.deleteCategory(categoryId);
+    }
 }
