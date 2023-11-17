@@ -1,10 +1,7 @@
 package com.project.bookstudy.category.service;
 
 import com.project.bookstudy.category.domain.Category;
-import com.project.bookstudy.category.dto.CategoryDto;
-import com.project.bookstudy.category.dto.CategoryResponse;
-import com.project.bookstudy.category.dto.CreateCategoryRequest;
-import com.project.bookstudy.category.dto.CreateCategoryResponse;
+import com.project.bookstudy.category.dto.*;
 import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.study_group.domain.StudyGroup;
@@ -57,5 +54,24 @@ public class CategoryService {
                 .categoryId(parentId)
                 .childCategories(categoryDtoList)
                 .build();
+    }
+
+    @Transactional
+    public void updateCategory(UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        category.update(request.getSubject(), toUpdateParentCategory(request));
+    }
+
+    private Category toUpdateParentCategory(UpdateCategoryRequest request) {
+        if (request.getParentCategoryId() == null) {
+            return null;
+        }
+
+        Category parentCategory = categoryRepository.findById(request.getParentCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        return parentCategory;
     }
 }

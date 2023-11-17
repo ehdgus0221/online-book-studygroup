@@ -1,9 +1,6 @@
 package com.project.bookstudy.category.controller;
 
-import com.project.bookstudy.category.dto.CategoryDto;
-import com.project.bookstudy.category.dto.CategoryResponse;
-import com.project.bookstudy.category.dto.CreateCategoryRequest;
-import com.project.bookstudy.category.dto.CreateCategoryResponse;
+import com.project.bookstudy.category.dto.*;
 import com.project.bookstudy.category.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
