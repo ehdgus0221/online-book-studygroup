@@ -7,6 +7,7 @@ import com.project.bookstudy.category.dto.UpdateCategoryRequest;
 import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.category.service.CategoryService;
 import com.project.bookstudy.common.dto.ErrorCode;
+import com.project.bookstudy.common.exception.MemberException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
@@ -28,6 +29,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @SpringBootTest
 public class CategoryServiceTest {
@@ -316,6 +318,48 @@ public class CategoryServiceTest {
         assertThat(updateCategoryRequest.getParentCategoryId()).isEqualTo(categoryId2);
         assertThat(updateCategoryRequest.getSubject()).isEqualTo("수정 완료1");
 
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("카테고리 수정 실패 - 존재하지 않는 카테고리 id를 parentCategoryId로 입력하는 경우")
+    void updateParentCategoryFailed() {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(member);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+
+        // 부모 카테고리 생성
+        Category parentCategory = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
+
+        // 자식 카테고리 생성
+        CreateCategoryRequest categoryRequest1 = makeCreateCategoryRequest(parentCategory.getId(), studyGroup);
+        Long categoryId1 = categoryService.createCategory(categoryRequest1).getCategoryId();
+
+        CreateCategoryRequest categoryRequest2 = makeCreateCategoryRequest(parentCategory.getId(), studyGroup);
+        Long categoryId2 = categoryService.createCategory(categoryRequest2).getCategoryId();
+
+        Category category = categoryRepository.findById(categoryId1)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        //when
+        //then
+        UpdateCategoryRequest updateCategoryRequest = makeUpdateCategoryRequest(categoryId2 + 10, "수정 완료1");
+        assertThatThrownBy(() -> categoryService.updateCategory(categoryId1, updateCategoryRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(ErrorCode.CATEGORY_NOT_FOUND.getDescription());
     }
 
     /**
