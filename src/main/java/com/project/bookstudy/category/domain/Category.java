@@ -5,6 +5,7 @@ import com.project.bookstudy.study_group.domain.StudyGroup;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -57,5 +58,24 @@ public class Category extends BaseTimeEntity {
             parentCategory.getChildCategories().add(category);
         }
         return category;
+    }
+
+    public void update(String subject, Category parentCategory) {
+        updateSubject(subject);
+        updateParentCategory(parentCategory);
+    }
+
+    private void updateSubject(String subject) {
+        if (!StringUtils.hasText(subject)) return;
+        this.subject = subject;
+    }
+
+    private void updateParentCategory(Category newParentCategory) {
+        //change to root category
+        if (newParentCategory == null) {
+            this.parentCategory = null;
+            return;
+        }
+        this.parentCategory = newParentCategory;
     }
 }

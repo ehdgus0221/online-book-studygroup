@@ -1,10 +1,7 @@
 package com.project.bookstudy.category.service;
 
 import com.project.bookstudy.category.domain.Category;
-import com.project.bookstudy.category.dto.CategoryDto;
-import com.project.bookstudy.category.dto.CategoryResponse;
-import com.project.bookstudy.category.dto.CreateCategoryRequest;
-import com.project.bookstudy.category.dto.CreateCategoryResponse;
+import com.project.bookstudy.category.dto.*;
 import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.study_group.domain.StudyGroup;
@@ -14,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,5 +56,24 @@ public class CategoryService {
                 .categoryId(parentId)
                 .childCategories(categoryDtoList)
                 .build();
+    }
+
+    @Transactional
+    public void updateCategory(Long categoryId, UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        category.update(request.getSubject(), toUpdateParentCategory(request));
+    }
+
+    private Category toUpdateParentCategory(UpdateCategoryRequest request) {
+        if (request.getParentCategoryId() == null) {
+            return null;
+        }
+
+        Category parentCategory = categoryRepository.findById(request.getParentCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        return parentCategory;
     }
 }
