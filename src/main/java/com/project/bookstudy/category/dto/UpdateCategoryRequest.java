@@ -7,13 +7,11 @@ import lombok.ToString;
 @Getter
 @ToString
 public class UpdateCategoryRequest {
-    private Long categoryId;
     private Long parentCategoryId;
     private String subject;
 
     @Builder
-    private UpdateCategoryRequest(Long categoryId, Long parentCategoryId, String subject) {
-        this.categoryId = categoryId;
+    private UpdateCategoryRequest(Long parentCategoryId, String subject) {
         this.parentCategoryId = parentCategoryId;
         this.subject = subject;
     }

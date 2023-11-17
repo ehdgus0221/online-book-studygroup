@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,8 +59,8 @@ public class CategoryService {
     }
 
     @Transactional
-    public void updateCategory(UpdateCategoryRequest request) {
-        Category category = categoryRepository.findById(request.getCategoryId())
+    public void updateCategory(Long categoryId, UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
 
         category.update(request.getSubject(), toUpdateParentCategory(request));

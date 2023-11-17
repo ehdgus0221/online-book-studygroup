@@ -27,9 +27,9 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping
-    public ResponseEntity<Void> updateCategory(UpdateCategoryRequest request) {
-        categoryService.updateCategory(request);
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateCategory(@PathVariable("id") Long categoryId, @RequestBody UpdateCategoryRequest request) {
+        categoryService.updateCategory(categoryId, request);
         return ResponseEntity.ok().build();
     }
 }
