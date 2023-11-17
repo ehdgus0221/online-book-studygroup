@@ -2,6 +2,7 @@ package com.project.bookstudy.category.service;
 
 import com.project.bookstudy.category.domain.Category;
 import com.project.bookstudy.category.dto.CategoryDto;
+import com.project.bookstudy.category.dto.CategoryResponse;
 import com.project.bookstudy.category.dto.CreateCategoryRequest;
 import com.project.bookstudy.category.dto.CreateCategoryResponse;
 import com.project.bookstudy.category.repository.CategoryRepository;
@@ -44,13 +45,12 @@ public class CategoryService {
     }
 
     //null 입력시 root Category List 반환
-    public List<CategoryDto> getRootOrChildCategoryList(@Nullable Long parentId) {
+    public List<CategoryResponse> getRootOrChildCategoryList(@Nullable Long parentId) {
         List<Category> rootOrChildCategories = categoryRepository.findRootOrChildByParentId(parentId);
         List<CategoryDto> categoryDtoList = rootOrChildCategories
                 .stream()
                 .map(CategoryDto::fromEntity)
                 .collect(Collectors.toList());
-
-        return categoryDtoList;
+        return CategoryResponse.fromEntity(categoryDtoList);
     }
 }

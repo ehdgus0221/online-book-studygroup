@@ -24,7 +24,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<CategoryResponse> getRootOrChildCategory(@RequestParam(required = false) Long parentId) {
+    public ResponseEntity<List<CategoryResponse>> getRootOrChildCategory(@RequestParam(required = false) Long parentId) {
 
         return ResponseEntity.ok(categoryService.getRootOrChildCategoryList(parentId));
     }
