@@ -76,4 +76,26 @@ public class CategoryService {
 
         return parentCategory;
     }
+
+    @Transactional
+    public void deleteCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        deleteRelatedData(category);
+    }
+
+    private void deleteRelatedData(Category category) {
+
+        if (category == null) return;
+
+        List<Category> childCategories = categoryRepository.findRootOrChildByParentId(category.getId());
+        for (Category childCategory : childCategories) {
+            deleteRelatedData(childCategory);
+        }
+        //TODO : 게시판 생성 이후 게시판, 게시판 파일 같이 삭제하기
+
+        //카테고리 삭제
+        categoryRepository.delete(category);
+    }
 }
