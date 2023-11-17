@@ -45,12 +45,17 @@ public class CategoryService {
     }
 
     //null 입력시 root Category List 반환
-    public List<CategoryResponse> getRootOrChildCategoryList(@Nullable Long parentId) {
+    public CategoryResponse getRootOrChildCategoryList(@Nullable Long parentId) {
         List<Category> rootOrChildCategories = categoryRepository.findRootOrChildByParentId(parentId);
+
         List<CategoryDto> categoryDtoList = rootOrChildCategories
                 .stream()
                 .map(CategoryDto::fromEntity)
                 .collect(Collectors.toList());
-        return CategoryResponse.fromEntity(categoryDtoList);
+
+        return CategoryResponse.builder()
+                .categoryId(parentId)
+                .childCategories(categoryDtoList)
+                .build();
     }
 }

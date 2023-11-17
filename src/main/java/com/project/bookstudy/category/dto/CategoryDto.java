@@ -22,4 +22,5 @@ public class CategoryDto {
                 .subject(category.getSubject())
                 .build();
     }
+
 }

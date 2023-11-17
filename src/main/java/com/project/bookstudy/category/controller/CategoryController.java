@@ -1,5 +1,6 @@
 package com.project.bookstudy.category.controller;
 
+import com.project.bookstudy.category.dto.CategoryDto;
 import com.project.bookstudy.category.dto.CategoryResponse;
 import com.project.bookstudy.category.dto.CreateCategoryRequest;
 import com.project.bookstudy.category.dto.CreateCategoryResponse;
@@ -24,8 +25,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getRootOrChildCategory(@RequestParam(required = false) Long parentId) {
-
-        return ResponseEntity.ok(categoryService.getRootOrChildCategoryList(parentId));
+    public ResponseEntity<CategoryResponse> getRootOrChildCategory(@RequestParam(required = false) Long parentId) {
+        CategoryResponse response = categoryService.getRootOrChildCategoryList(parentId);
+        return ResponseEntity.ok(response);
     }
 }
