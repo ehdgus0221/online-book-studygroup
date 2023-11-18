@@ -54,7 +54,9 @@ public class PostService {
         Post post = Post.of(request.getContents(), request.getSubject(), studyGroup, member, category);
         if (imageFiles.size() != 0) {
             for (MultipartFile file : imageFiles) {
-                uploadProfileImage(file, post);
+                if (!file.isEmpty()) {
+                    uploadProfileImage(file, post);
+                }
             }
 
         }
