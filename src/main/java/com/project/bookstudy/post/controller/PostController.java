@@ -1,8 +1,10 @@
 package com.project.bookstudy.post.controller;
 
 import com.project.bookstudy.post.dto.CreatePostRequest;
+import com.project.bookstudy.post.dto.CreatePostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +19,8 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<CreatePostResponse> createPost(@RequestPart CreatePostRequest request,
-                                                         @RequestPart(value = "files", required = false) List<MultipartFile> imageFiles) {
-        return ResponseEntity.ok(postService.createPost(request,imageFiles));
+                                                         @RequestPart(value = "files", required = false) List<MultipartFile> imageFiles,
+                                                         Authentication authentication) {
+        return ResponseEntity.ok(postService.createPost(request, imageFiles, authentication));
     }
 }
