@@ -12,6 +12,4 @@ public class CreatePostRequest {
     private String contents;
     private Long categoryId;
     private Long studyGroupId;
-
-    private List<CreateFileRequest> files;
 }
