@@ -76,4 +76,10 @@ public class Post extends BaseTimeEntity {
         this.contents = this.contents;
         this.category = category;
     }
+
+    public void addFile(File file) {
+        files.add(file);
+        file.setPost(this);
+    }
+
 }

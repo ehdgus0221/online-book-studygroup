@@ -42,4 +42,8 @@ public class File extends BaseTimeEntity {
         post.getFiles().add(file);
         return file;
     }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
 }

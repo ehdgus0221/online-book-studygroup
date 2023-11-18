@@ -3,12 +3,16 @@ package com.project.bookstudy.post.service;
 import com.project.bookstudy.category.domain.Category;
 import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
+import com.project.bookstudy.common.exception.FileException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.dto.CreatePostRequest;
 import com.project.bookstudy.post.dto.CreatePostResponse;
+import com.project.bookstudy.post.file.domain.File;
 import com.project.bookstudy.post.file.repository.FileRepository;
+import com.project.bookstudy.post.file.service.S3Deleter;
+import com.project.bookstudy.post.file.service.S3Uploader;
 import com.project.bookstudy.post.repository.PostRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
@@ -20,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,6 +36,8 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final FileRepository fileRepository;
+    private final S3Uploader s3Uploader;
+    private final S3Deleter s3Deleter;
 
     private final String s3BucketFolderName = "profile-images/";
 
@@ -48,14 +53,10 @@ public class PostService {
 
         Post post = Post.of(request.getContents(), request.getSubject(), studyGroup, member, category);
         if (imageFiles.size() != 0) {
-            List<String> fileUrls = new ArrayList<>();
-
             for (MultipartFile file : imageFiles) {
-                uploadProfileImage(member, file);
+                uploadProfileImage(file, post);
             }
 
-            // 저장된 파일 경로를 post 엔티티에 연결
-            post.setFileUrls(fileUrls);
         }
         Post savePost = postRepository.save(post);
 
@@ -64,22 +65,21 @@ public class PostService {
     }
 
     /**
-     * 파일업로드 메서드
-     * @param member
+     *
      * @param imageFile
-     * @throws IOException
+     * @param post
+     * 파일 업로드 메서드
      */
-    private void uploadProfileImage(Member member, MultipartFile imageFile){
+    private void uploadProfileImage(MultipartFile imageFile, Post post){
         try{
-            member.setImage(
-                    s3Uploader.uploadAndGenerateUrl(
+            post.addFile(
+                    File.of(s3Uploader.uploadAndGenerateUrl(
                             imageFile,
-                            s3BucketFolderName +
-                                    RandomStringMaker.randomStringMaker())
-            );
+                            s3BucketFolderName + RandomStringMaker.randomStringMaker()),post)
+                    );
         } catch (IOException e){
-            throw new FileException(Error.UPLOAD_IMAGE_FILE_FAILED);
+            throw new FileException(ErrorCode.UPLOAD_IMAGE_FILE_FAILED);
         }
-        memberRepository.save(member);
+        postRepository.save(post);
     }
 }
