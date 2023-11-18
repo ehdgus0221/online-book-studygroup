@@ -1,5 +1,10 @@
 package com.project.bookstudy.post.file.service;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.s3.AmazonS3;
+import com.project.bookstudy.common.dto.ErrorCode;
+import com.project.bookstudy.common.exception.FileException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,11 +28,11 @@ public class S3Deleter {
         } catch (AmazonServiceException e) {
             // Amazon S3 서비스 오류 처리
             //e.printStackTrace();
-            throw new FileException(Error.S3_SERVICE_ERROR);
+            throw new FileException(ErrorCode.S3_SERVICE_ERROR);
         } catch (SdkClientException e) {
             // Amazon S3 클라이언트 오류 처리
             //e.printStackTrace();
-            throw new FileException(Error.S3_CLIENT_ERROR);
+            throw new FileException(ErrorCode.S3_CLIENT_ERROR);
 
         }
     }
