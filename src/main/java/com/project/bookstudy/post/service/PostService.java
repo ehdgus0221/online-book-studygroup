@@ -65,19 +65,15 @@ public class PostService {
     }
 
     /**
-     *
      * @param imageFile
-     * @param post
-     * 파일 업로드 메서드
+     * @param post      파일 업로드 메서드
      */
-    private void uploadProfileImage(MultipartFile imageFile, Post post){
-        try{
-            post.addFile(
-                    File.of(s3Uploader.uploadAndGenerateUrl(
-                            imageFile,
-                            s3BucketFolderName + RandomStringMaker.randomStringMaker()),post)
-                    );
-        } catch (IOException e){
+    private void uploadProfileImage(MultipartFile imageFile, Post post) {
+        try {
+            File.of(s3Uploader.uploadAndGenerateUrl(
+                    imageFile,
+                    s3BucketFolderName + RandomStringMaker.randomStringMaker()), post);
+        } catch (IOException e) {
             throw new FileException(ErrorCode.UPLOAD_IMAGE_FILE_FAILED);
         }
         postRepository.save(post);
