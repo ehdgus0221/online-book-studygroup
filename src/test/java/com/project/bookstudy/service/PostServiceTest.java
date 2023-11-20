@@ -5,6 +5,7 @@ import com.project.bookstudy.category.dto.CreateCategoryRequest;
 import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.category.service.CategoryService;
 import com.project.bookstudy.common.dto.ErrorCode;
+import com.project.bookstudy.common.exception.MemberException;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.post.domain.Post;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @Slf4j
 @SpringBootTest
@@ -76,7 +78,7 @@ public class PostServiceTest {
         Member member = createMember("member", "member@naver.com");
         memberRepository.save(member);
         Member leader = createMember("leader", "leader@naver.com");
-        memberRepository.save(member);
+        memberRepository.save(leader);
 
         Authentication authentication = createAuthenticationMember();
 
@@ -106,6 +108,41 @@ public class PostServiceTest {
         assertThat(findPost.getContents()).isEqualTo(postRequest.getContents());
         assertThat(findPost.getStudyGroup().getId()).isEqualTo(postRequest.getStudyGroupId());
         assertThat(findPost.getCategory().getId()).isEqualTo(postRequest.getCategoryId());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 생성 실패 - 스터디그룹 없는 경우")
+    void createPostFailed() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        //when
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId() + 1);
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        //then
+        assertThatThrownBy(() -> postService.createPost(postRequest, multipartFiles, authentication))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription());
     }
 
     /**
