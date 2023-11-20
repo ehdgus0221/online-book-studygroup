@@ -18,10 +18,31 @@ public class PostController {
 
     private final PostService postService;
 
+    /**
+     *
+     * @param request
+     * @param imageFiles
+     * @param authentication
+     * 게시글 생성
+     */
+
     @PostMapping
     public ResponseEntity<CreatePostResponse> createPost(@RequestPart CreatePostRequest request,
                                                          @RequestPart(value = "files", required = false) List<MultipartFile> imageFiles,
                                                          Authentication authentication) {
         return ResponseEntity.ok(postService.createPost(request, imageFiles, authentication));
     }
+
+    /**
+     *
+     * @param postId
+     * 게시글 단일 조회
+     */
+
+    @GetMapping("/{id}")
+    public PostDto getPost(@PathVariable("id") Long postId) {
+        PostDto postDto = postService.getPost(postId);
+        return postDto;
+    }
+
 }
