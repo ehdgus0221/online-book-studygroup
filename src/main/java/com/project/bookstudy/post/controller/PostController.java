@@ -2,6 +2,7 @@ package com.project.bookstudy.post.controller;
 
 import com.project.bookstudy.post.dto.CreatePostRequest;
 import com.project.bookstudy.post.dto.CreatePostResponse;
+import com.project.bookstudy.post.dto.PostDto;
 import com.project.bookstudy.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
