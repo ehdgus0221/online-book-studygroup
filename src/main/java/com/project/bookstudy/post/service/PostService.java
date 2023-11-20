@@ -9,6 +9,7 @@ import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.dto.CreatePostRequest;
 import com.project.bookstudy.post.dto.CreatePostResponse;
+import com.project.bookstudy.post.dto.PostDto;
 import com.project.bookstudy.post.file.domain.File;
 import com.project.bookstudy.post.file.repository.FileRepository;
 import com.project.bookstudy.post.file.service.S3Deleter;
@@ -64,6 +65,12 @@ public class PostService {
 
 
         return CreatePostResponse.fromPost(savePost);
+    }
+
+    public PostDto getPost(Long postId) {
+        Post post = postRepository.findByIdWithAll(postId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+        return PostDto.fromEntity(post);
     }
 
     /**
