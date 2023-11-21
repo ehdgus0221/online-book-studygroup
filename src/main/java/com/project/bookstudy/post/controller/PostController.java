@@ -1,9 +1,9 @@
 package com.project.bookstudy.post.controller;
 
-import com.project.bookstudy.post.dto.CreatePostRequest;
-import com.project.bookstudy.post.dto.CreatePostResponse;
+import com.project.bookstudy.post.dto.request.CreatePostRequest;
+import com.project.bookstudy.post.dto.response.CreatePostResponse;
 import com.project.bookstudy.post.dto.PostDto;
-import com.project.bookstudy.post.dto.PostSearchCond;
+import com.project.bookstudy.post.dto.request.PostSearchCond;
 import com.project.bookstudy.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -1,4 +1,4 @@
-package com.project.bookstudy.post.dto;
+package com.project.bookstudy.post.dto.response;
 
 import com.project.bookstudy.post.domain.Post;
 import lombok.Builder;

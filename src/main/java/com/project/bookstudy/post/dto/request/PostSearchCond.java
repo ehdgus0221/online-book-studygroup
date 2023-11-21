@@ -1,4 +1,4 @@
-package com.project.bookstudy.post.dto;
+package com.project.bookstudy.post.dto.request;
 
 import lombok.Builder;
 import lombok.Getter;
