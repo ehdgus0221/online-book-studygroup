@@ -9,6 +9,7 @@ import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.dto.CreatePostRequest;
 import com.project.bookstudy.post.dto.CreatePostResponse;
+import com.project.bookstudy.post.dto.PostDto;
 import com.project.bookstudy.post.file.repository.FileRepository;
 import com.project.bookstudy.post.repository.PostRepository;
 import com.project.bookstudy.post.service.PostService;
@@ -134,6 +135,48 @@ public class PostServiceTest {
         assertThatThrownBy(() -> postService.createPost(postRequest, multipartFiles, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 단일 조회 성공")
+    void getPostSuccess() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        //when
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        PostDto postDto = postService.getPost(createPost.getPostId());
+        //then
+        Post findPost = postRepository.findById(postDto.getId())
+                        .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        assertThat(findPost.getSubject()).isEqualTo(postRequest.getSubject());
+        assertThat(findPost.getContents()).isEqualTo(postRequest.getContents());
+        assertThat(findPost.getStudyGroup().getId()).isEqualTo(postRequest.getStudyGroupId());
+        assertThat(findPost.getCategory().getId()).isEqualTo(postRequest.getCategoryId());
     }
 
     /**
