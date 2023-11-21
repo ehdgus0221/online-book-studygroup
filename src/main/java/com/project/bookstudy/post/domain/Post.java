@@ -45,7 +45,7 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "study_group_id")
     private StudyGroup studyGroup;
 
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<File> files = new ArrayList<>();
 
     private Boolean isDeleted = Boolean.FALSE;

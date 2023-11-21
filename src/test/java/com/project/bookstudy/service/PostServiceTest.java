@@ -9,6 +9,8 @@ import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.dto.CreatePostRequest;
 import com.project.bookstudy.post.dto.CreatePostResponse;
+import com.project.bookstudy.post.dto.PostDto;
+import com.project.bookstudy.post.dto.PostSearchCond;
 import com.project.bookstudy.post.file.repository.FileRepository;
 import com.project.bookstudy.post.repository.PostRepository;
 import com.project.bookstudy.post.service.PostService;
@@ -22,6 +24,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,6 +42,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @Slf4j
 @SpringBootTest
@@ -134,6 +141,174 @@ public class PostServiceTest {
         assertThatThrownBy(() -> postService.createPost(postRequest, multipartFiles, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(ErrorCode.STUDY_GROUP_NOT_FOUND.getDescription());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 단일 조회 성공")
+    void getPostSuccess() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        //when
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        PostDto postDto = postService.getPost(createPost.getPostId());
+        //then
+        Post findPost = postRepository.findById(postDto.getId())
+                        .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        assertThat(findPost.getSubject()).isEqualTo(postRequest.getSubject());
+        assertThat(findPost.getContents()).isEqualTo(postRequest.getContents());
+        assertThat(findPost.getStudyGroup().getId()).isEqualTo(postRequest.getStudyGroupId());
+        assertThat(findPost.getCategory().getId()).isEqualTo(postRequest.getCategoryId());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 단일 조회 실패 - 게시글 생성 시 입력한 데이터와 다른 데이터를 삽입하여 비교")
+    void getPostFailed() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        //when
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        PostDto postDto = postService.getPost(createPost.getPostId());
+        //then
+        Post findPost = postRepository.findById(postDto.getId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        assertThat(findPost.getSubject()).isNotEqualTo(postRequest.getSubject() + "a");
+        assertThat(findPost.getContents()).isNotEqualTo(postRequest.getContents() + "a");
+        assertThat(findPost.getStudyGroup().getId()).isNotEqualTo(postRequest.getStudyGroupId() + 1);
+        assertThat(findPost.getCategory().getId()).isNotEqualTo(postRequest.getCategoryId() + 1);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 전체 조회 성공")
+    void getPostListSuccess() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        //when
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost1 = postService.createPost(postRequest, multipartFiles, authentication);
+        CreatePostResponse createPost2 = postService.createPost(postRequest, multipartFiles, authentication);
+
+
+        Pageable pageable = PageRequest.of(0, 10); // 예시로 첫 페이지, 한 페이지당 10개씩
+        PostSearchCond cond = PostSearchCond.builder().studyGroupId(studyGroup.getId()).build();
+
+        //then
+        Page<PostDto> postDtoPage = postService.getPostList(pageable, cond);
+
+        assertEquals(postDtoPage.getTotalElements(), 2);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 전체 조회 실패 - 전체 게시물 수가 맞지 않는 경우")
+    void getPostListFailed() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        //when
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost1 = postService.createPost(postRequest, multipartFiles, authentication);
+        CreatePostResponse createPost2 = postService.createPost(postRequest, multipartFiles, authentication);
+
+
+        Pageable pageable = PageRequest.of(0, 10); // 예시로 첫 페이지, 한 페이지당 10개씩
+        PostSearchCond cond = PostSearchCond.builder().studyGroupId(studyGroup.getId()).build();
+
+        //then
+        Page<PostDto> postDtoPage = postService.getPostList(pageable, cond);
+
+        assertNotEquals(postDtoPage.getTotalElements(), 1);
     }
 
     /**
