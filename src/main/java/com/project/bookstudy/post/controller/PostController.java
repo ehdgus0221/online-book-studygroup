@@ -66,4 +66,11 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostList(pageable, cond));
     }
 
+    @PatchMapping
+    public ResponseEntity<Void> updatePost(@RequestPart UpdatePostRequest request,
+                           @RequestPart(value = "files", required = false) List<MultipartFile> imageFiles,
+                           Authentication authentication) {
+        ResponseEntity.ok(postService.updatePost(request, imageFiles, authentication));
+    }
+
 }
