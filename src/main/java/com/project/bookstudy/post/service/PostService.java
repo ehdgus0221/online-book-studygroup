@@ -10,6 +10,7 @@ import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.dto.CreatePostRequest;
 import com.project.bookstudy.post.dto.CreatePostResponse;
 import com.project.bookstudy.post.dto.PostDto;
+import com.project.bookstudy.post.dto.PostSearchCond;
 import com.project.bookstudy.post.file.domain.File;
 import com.project.bookstudy.post.file.repository.FileRepository;
 import com.project.bookstudy.post.file.service.S3Deleter;
@@ -19,6 +20,8 @@ import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import com.project.bookstudy.util.RandomStringMaker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +74,11 @@ public class PostService {
         Post post = postRepository.findByIdWithAll(postId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
         return PostDto.fromEntity(post);
+    }
+
+    public Page<PostDto> getPostList(Pageable pageable, PostSearchCond cond) {
+        return postRepository.searchPost(pageable, cond)
+                .map(PostDto::fromEntity);
     }
 
     /**
