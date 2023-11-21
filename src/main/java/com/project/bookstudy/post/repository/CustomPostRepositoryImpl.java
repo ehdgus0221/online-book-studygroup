@@ -23,7 +23,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
                 .join(post.studyGroup, studyGroup).fetchJoin()
                 .join(post.category, category).fetchJoin()
                 .join(post.member, member).fetchJoin()
-                .join(post.files, file).fetchJoin()
+                .leftJoin(post.files, file).fetchJoin()
                 .where(post.id.eq(id))
                 .fetchOne();
 

@@ -44,6 +44,7 @@ public class PostDto {
                 .contents(post.getContents())
                 .categoryDto(CategoryDto.fromEntity(post.getCategory()))
                 .studyGroupDto(StudyGroupDto.fromEntity(post.getStudyGroup()))
+                .memberDto(MemberDto.fromEntity(post.getMember()))
                 .filePaths(post.getFiles()
                         .stream()
                         .map(FileDto::fromEntity)
