@@ -187,6 +187,48 @@ public class PostServiceTest {
 
     @Test
     @Transactional
+    @DisplayName("게시글 단일 조회 실패 - 게시글 생성 시 입력한 데이터와 다른 데이터를 삽입하여 비교")
+    void getPostFailed() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        //when
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        PostDto postDto = postService.getPost(createPost.getPostId());
+        //then
+        Post findPost = postRepository.findById(postDto.getId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        assertThat(findPost.getSubject()).isNotEqualTo(postRequest.getSubject() + "a");
+        assertThat(findPost.getContents()).isNotEqualTo(postRequest.getContents() + "a");
+        assertThat(findPost.getStudyGroup().getId()).isNotEqualTo(postRequest.getStudyGroupId() + 1);
+        assertThat(findPost.getCategory().getId()).isNotEqualTo(postRequest.getCategoryId() + 1);
+    }
+
+    @Test
+    @Transactional
     @DisplayName("게시글 전체 조회 성공")
     void getPostListSuccess() throws IOException {
         //given
