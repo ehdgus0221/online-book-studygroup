@@ -43,6 +43,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @Slf4j
 @SpringBootTest
@@ -224,6 +225,48 @@ public class PostServiceTest {
         Page<PostDto> postDtoPage = postService.getPostList(pageable, cond);
 
         assertEquals(postDtoPage.getTotalElements(), 2);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 전체 조회 실패 - 전체 게시물 수가 맞지 않는 경우")
+    void getPostListFailed() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        //when
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost1 = postService.createPost(postRequest, multipartFiles, authentication);
+        CreatePostResponse createPost2 = postService.createPost(postRequest, multipartFiles, authentication);
+
+
+        Pageable pageable = PageRequest.of(0, 10); // 예시로 첫 페이지, 한 페이지당 10개씩
+        PostSearchCond cond = PostSearchCond.builder().studyGroupId(studyGroup.getId()).build();
+
+        //then
+        Page<PostDto> postDtoPage = postService.getPostList(pageable, cond);
+
+        assertNotEquals(postDtoPage.getTotalElements(), 1);
     }
 
     /**
