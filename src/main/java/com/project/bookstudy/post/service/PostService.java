@@ -8,6 +8,7 @@ import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.dto.request.CreatePostRequest;
+import com.project.bookstudy.post.dto.request.UpdatePostRequest;
 import com.project.bookstudy.post.dto.response.CreatePostResponse;
 import com.project.bookstudy.post.dto.PostDto;
 import com.project.bookstudy.post.dto.request.PostSearchCond;
@@ -28,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +69,6 @@ public class PostService {
         }
         Post savePost = postRepository.save(post);
 
-
         return CreatePostResponse.fromPost(savePost);
     }
 
@@ -81,9 +83,45 @@ public class PostService {
                 .map(PostDto::fromEntity);
     }
 
+    @Transactional
+    public void updatePost(Long postId,UpdatePostRequest request, List<MultipartFile> imageFiles,
+                           Authentication authentication) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+        Member member = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.USER_NOT_FOUND.getDescription()));
+
+        if (post.getMember().getId() != member.getId()) {
+            throw new IllegalArgumentException(ErrorCode.POST_UPDATE_FAIL.getDescription());
+        }
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
+
+        List<File> beforeFiles = fileRepository.findAllByPost(post);
+        deleteBeforeFiles(beforeFiles, post);
+
+        if (imageFiles.size() != 0) {
+            for (MultipartFile file : imageFiles) {
+                if (!file.isEmpty()) {
+                    uploadProfileImage(file, post);
+                }
+            }
+        }
+
+        post.update(category, request.getSubject(), request.getContents());
+    }
+
+    private void deleteBeforeFiles(List<File> beforeFiles, Post post) {
+        for (File file : beforeFiles) {
+            file.deleteFile(post);
+        }
+    }
+
     /**
      * @param imageFile
-     * @param post      파일 업로드 메서드
+     * @param post
+     * 파일 업로드 메서드
      */
     private void uploadProfileImage(MultipartFile imageFile, Post post) {
         try {
@@ -95,4 +133,6 @@ public class PostService {
         }
         postRepository.save(post);
     }
+
+
 }

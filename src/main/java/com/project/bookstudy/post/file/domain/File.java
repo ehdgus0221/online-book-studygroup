@@ -43,4 +43,10 @@ public class File extends BaseTimeEntity {
         return file;
     }
 
+    public void deleteFile(Post post) {
+        for (File file : post.getFiles()) {
+            file.isDeleted = Boolean.TRUE;
+        }
+    }
+
 }

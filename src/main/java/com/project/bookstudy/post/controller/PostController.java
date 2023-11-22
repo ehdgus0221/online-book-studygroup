@@ -1,6 +1,7 @@
 package com.project.bookstudy.post.controller;
 
 import com.project.bookstudy.post.dto.request.CreatePostRequest;
+import com.project.bookstudy.post.dto.request.UpdatePostRequest;
 import com.project.bookstudy.post.dto.response.CreatePostResponse;
 import com.project.bookstudy.post.dto.PostDto;
 import com.project.bookstudy.post.dto.request.PostSearchCond;
@@ -66,11 +67,22 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostList(pageable, cond));
     }
 
-    @PatchMapping
-    public ResponseEntity<Void> updatePost(@RequestPart UpdatePostRequest request,
+    /**
+     *
+     * @param postId
+     * @param request
+     * @param imageFiles
+     * @param authentication
+     * 게시글 수정
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updatePost(@PathVariable("id") Long postId,
+            @RequestPart UpdatePostRequest request,
                            @RequestPart(value = "files", required = false) List<MultipartFile> imageFiles,
                            Authentication authentication) {
-        ResponseEntity.ok(postService.updatePost(request, imageFiles, authentication));
+        postService.updatePost(postId, request, imageFiles, authentication);
+        return ResponseEntity.ok().build();
+
     }
 
 }
