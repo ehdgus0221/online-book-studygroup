@@ -85,6 +85,12 @@ public class PostController {
 
     }
 
+    /**
+     *
+     * @param postId
+     * @param authentication
+     * 게시글 삭제
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable("id") Long postId,
                                            Authentication authentication) {
