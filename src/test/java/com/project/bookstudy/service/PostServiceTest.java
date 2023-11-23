@@ -8,6 +8,7 @@ import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.dto.request.CreatePostRequest;
+import com.project.bookstudy.post.dto.request.UpdatePostRequest;
 import com.project.bookstudy.post.dto.response.CreatePostResponse;
 import com.project.bookstudy.post.dto.PostDto;
 import com.project.bookstudy.post.dto.request.PostSearchCond;
@@ -311,6 +312,46 @@ public class PostServiceTest {
         assertNotEquals(postDtoPage.getTotalElements(), 1);
     }
 
+    @Test
+    @Transactional
+    @DisplayName("게시글 수정 성공")
+    void updatePostSuccess() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+        List<MultipartFile> multipartFiles1 = new ArrayList<>();
+        multipartFiles1.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles1, authentication);
+        //when
+        List<MultipartFile> multipartFiles2 = new ArrayList<>();
+        multipartFiles2.add(new MockMultipartFile("files", "file2.txt", "text/plain", "File 2 content".getBytes()));
+        UpdatePostRequest updatePostRequest = makeUpdatePostRequest(categoryId, "제목 수정", "내용 수정");
+        postService.updatePost(createPost.getPostId(),updatePostRequest, multipartFiles2, authentication);
+
+        Post resultPost = postRepository.findById(createPost.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
+        //then
+        assertThat(resultPost.getSubject()).isEqualTo("제목 수정");
+        assertThat(resultPost.getContents()).isEqualTo("내용 수정");
+        assertThat(resultPost.getContents()).isEqualTo("내용 수정");
+    }
+
     /**
      * @param name
      * @param email 회원가입 메서드
@@ -384,6 +425,14 @@ public class PostServiceTest {
                 .contents(contents)
                 .categoryId(categoryId)
                 .studyGroupId(studyGroupId)
+                .build();
+    }
+
+    public static UpdatePostRequest makeUpdatePostRequest(Long categoryId, String subject, String contents) {
+        return UpdatePostRequest.builder()
+                .categoryId(categoryId)
+                .subject(subject)
+                .contents(contents)
                 .build();
     }
 
