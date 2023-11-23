@@ -1,9 +1,10 @@
 package com.project.bookstudy.post.controller;
 
-import com.project.bookstudy.post.dto.CreatePostRequest;
-import com.project.bookstudy.post.dto.CreatePostResponse;
+import com.project.bookstudy.post.dto.request.CreatePostRequest;
+import com.project.bookstudy.post.dto.request.UpdatePostRequest;
+import com.project.bookstudy.post.dto.response.CreatePostResponse;
 import com.project.bookstudy.post.dto.PostDto;
-import com.project.bookstudy.post.dto.PostSearchCond;
+import com.project.bookstudy.post.dto.request.PostSearchCond;
 import com.project.bookstudy.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -64,6 +65,24 @@ public class PostController {
     public ResponseEntity<Page<PostDto>> getPosts(@PageableDefault Pageable pageable,
                                   @ModelAttribute PostSearchCond cond) {
         return ResponseEntity.ok(postService.getPostList(pageable, cond));
+    }
+
+    /**
+     *
+     * @param postId
+     * @param request
+     * @param imageFiles
+     * @param authentication
+     * 게시글 수정
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updatePost(@PathVariable("id") Long postId,
+            @RequestPart UpdatePostRequest request,
+                           @RequestPart(value = "files", required = false) List<MultipartFile> imageFiles,
+                           Authentication authentication) {
+        postService.updatePost(postId, request, imageFiles, authentication);
+        return ResponseEntity.ok().build();
+
     }
 
 }

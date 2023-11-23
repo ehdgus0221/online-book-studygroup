@@ -35,6 +35,7 @@ public enum ErrorCode {
     RECRUITMENT_DATE_END("모집 기간이 아닙니다.", HttpStatus.BAD_REQUEST),
     ENROLLMENT_CANCEL_FAIL("해당 스터디가 진행되면 신청 취소 실패했습니다.", HttpStatus.UNAUTHORIZED),
     STUDY_GROUP_UPDATE_FAIL("스터디그룹을 생성한 사람만 수정할 수 있습니다.", HttpStatus.UNAUTHORIZED),
+    POST_UPDATE_FAIL("게시글을 생성한 사람만 수정할 수 있습니다.", HttpStatus.UNAUTHORIZED),
     REFUND_FAIL("환불 실패", HttpStatus.UNAUTHORIZED),
 
     S3_SERVICE_ERROR("S3 서비스 에러가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),

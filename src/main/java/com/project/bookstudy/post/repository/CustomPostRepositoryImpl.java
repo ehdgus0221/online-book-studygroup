@@ -1,7 +1,7 @@
 package com.project.bookstudy.post.repository;
 
 import com.project.bookstudy.post.domain.Post;
-import com.project.bookstudy.post.dto.PostSearchCond;
+import com.project.bookstudy.post.dto.request.PostSearchCond;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
