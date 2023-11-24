@@ -5,6 +5,7 @@ import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.category.service.CategoryService;
 import com.project.bookstudy.comment.domain.Comment;
 import com.project.bookstudy.comment.dto.request.CreateCommentRequest;
+import com.project.bookstudy.comment.dto.request.UpdateCommentRequest;
 import com.project.bookstudy.comment.dto.response.CommentResponse;
 import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
 import com.project.bookstudy.comment.repository.CommentRepository;
@@ -267,6 +268,100 @@ public class CommentServiceTest {
         assertThat(commentResponses.size()).isNotEqualTo(3);
     }
 
+    @Test
+    @Transactional
+    @DisplayName("댓글 수정 성공")
+    void updatePostSuccess() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        Post findPost = postRepository.findById(createPost.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        //when
+        CreateCommentRequest commentRequest = makeCreateCommentRequest(findPost.getId(), null, "댓글 작성");
+        CreateCommentResponse commentResponse = commentService.createComment(commentRequest, authentication);
+        Comment comment = commentRepository.findById(commentResponse.getCommentId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.COMMENT_NOT_FOUND.getDescription()));
+
+        //then
+        UpdateCommentRequest updateCommentRequest = makeUpdateCommentRequest("내용 수정");
+        commentService.updateComment(comment.getId(), updateCommentRequest.getUpdateCommentParam());
+
+        assertThat(comment.getContent()).isEqualTo(updateCommentRequest.getContent());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("댓글 수정 실패 - 게시글 조회가 되지 않는 경우")
+    void updatePostFailed() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        Post findPost = postRepository.findById(createPost.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        //when
+        CreateCommentRequest commentRequest = makeCreateCommentRequest(findPost.getId(), null, "댓글 작성");
+        CreateCommentResponse commentResponse = commentService.createComment(commentRequest, authentication);
+        Comment comment = commentRepository.findById(commentResponse.getCommentId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.COMMENT_NOT_FOUND.getDescription()));
+
+        //then
+        UpdateCommentRequest updateCommentRequest = makeUpdateCommentRequest("내용 수정");
+        assertThatThrownBy(() -> commentService.updateComment(comment.getId() + 1, updateCommentRequest.getUpdateCommentParam()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(ErrorCode.COMMENT_NOT_FOUND.getDescription());
+    }
+
     /**
      * @param name
      * @param email 회원가입 메서드
@@ -355,6 +450,12 @@ public class CommentServiceTest {
         return CreateCommentRequest.builder()
                 .postId(postId)
                 .parentId(parentId)
+                .content(content)
+                .build();
+    }
+
+    public static UpdateCommentRequest makeUpdateCommentRequest(String content) {
+        return UpdateCommentRequest.builder()
                 .content(content)
                 .build();
     }

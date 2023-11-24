@@ -1,6 +1,7 @@
 package com.project.bookstudy.comment.domain;
 
 import com.project.bookstudy.comment.domain.param.CreateCommentParam;
+import com.project.bookstudy.comment.domain.param.UpdateCommentParam;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.post.domain.Post;
 import lombok.*;
@@ -70,6 +71,12 @@ public class Comment {
             parent.getChildren().add(comment);
         }
         return comment;
+    }
+
+    public void update(UpdateCommentParam param) {
+
+        this.content = param.getContent();
+        this.udtDt = LocalDateTime.now();
     }
 
 }
