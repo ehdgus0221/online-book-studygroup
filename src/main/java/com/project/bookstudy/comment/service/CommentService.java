@@ -1,7 +1,9 @@
 package com.project.bookstudy.comment.service;
 
+import com.project.bookstudy.comment.domain.Comment;
 import com.project.bookstudy.comment.domain.param.CreateCommentParam;
 import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
+import com.project.bookstudy.comment.repository.CommentRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
