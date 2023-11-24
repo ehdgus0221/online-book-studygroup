@@ -499,7 +499,8 @@ public class PostServiceTest {
      * @param recruitmentStartDt
      * @param recruitmentEndDt
      * @param subject
-     * @param contents           회원가입 request 값
+     * @param contents
+     * 회원가입 request 값
      */
     private CreateStudyGroupRequest createStudyCreateGroupRequest(Long memberId, LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt, String subject, String contents) {
         return CreateStudyGroupRequest.builder()
