@@ -5,9 +5,15 @@ import com.project.bookstudy.comment.dto.response.CommentResponse;
 import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
 import com.project.bookstudy.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,9 +34,9 @@ public class CommentController {
         return ResponseEntity.ok(commentService.createComment(request, authentication));
     }
 
-
     @GetMapping
-    public ResponseEntity<CommentResponse> getRootOrChildComment(@RequestParam(required = false) Long parentId) {
-        return ResponseEntity.ok(commentService.getRootOrChildCommentList(parentId));
+    public ResponseEntity<Page<CommentResponse>> getRootOrChildComment(@RequestParam(required = false) Long parentId
+    ,Pageable pageable) {
+        return ResponseEntity.ok(commentService.getRootOrChildCommentList(parentId, pageable));
     }
 }

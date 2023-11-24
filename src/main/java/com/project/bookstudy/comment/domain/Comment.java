@@ -42,8 +42,7 @@ public class Comment {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    // 자식 댓글들을 가지고 있어야 되나?
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<Comment> children = new ArrayList<>();
 
     private Boolean isDeleted = Boolean.FALSE;
