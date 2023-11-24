@@ -4,6 +4,9 @@ import com.project.bookstudy.category.domain.Category;
 import com.project.bookstudy.category.dto.*;
 import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
+import com.project.bookstudy.post.domain.Post;
+import com.project.bookstudy.post.file.repository.FileRepository;
+import com.project.bookstudy.post.repository.PostRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,8 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final StudyGroupRepository studyGroupRepository;
+    private final PostRepository postRepository;
+    private final FileRepository fileRepository;
 
     @Transactional
     public CreateCategoryResponse createCategory(CreateCategoryRequest request) {
@@ -82,7 +87,7 @@ public class CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
 
-        deleteRelatedData(category);
+        deleteChildCategoryAndPost(category);
     }
 
     private void deleteRelatedData(Category category) {
@@ -94,6 +99,23 @@ public class CategoryService {
             deleteRelatedData(childCategory);
         }
         //TODO : 게시판 생성 이후 게시판, 게시판 파일 같이 삭제하기
+
+        //카테고리 삭제
+        categoryRepository.delete(category);
+    }
+
+    private void deleteChildCategoryAndPost(Category category) {
+
+        if (category == null) return;
+
+        List<Category> childCategories = categoryRepository.findRootOrChildByParentId(category.getId());
+        for (Category childCategory : childCategories) {
+            deleteChildCategoryAndPost(childCategory);
+        }
+
+        List<Post> postList = postRepository.findPostsByCategory(category);
+        fileRepository.deleteAllByPostIn(postList);
+        postRepository.softDeleteAllByCategory(category);
 
         //카테고리 삭제
         categoryRepository.delete(category);
