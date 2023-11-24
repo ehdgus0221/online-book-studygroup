@@ -5,6 +5,7 @@ import com.project.bookstudy.category.repository.CategoryRepository;
 import com.project.bookstudy.category.service.CategoryService;
 import com.project.bookstudy.comment.domain.Comment;
 import com.project.bookstudy.comment.dto.request.CreateCommentRequest;
+import com.project.bookstudy.comment.dto.response.CommentResponse;
 import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
 import com.project.bookstudy.comment.repository.CommentRepository;
 import com.project.bookstudy.comment.service.CommentService;
@@ -28,6 +29,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -156,6 +159,112 @@ public class CommentServiceTest {
         assertThatThrownBy(() -> commentService.createComment(commentRequest, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(ErrorCode.PARENT_NOT_FOUND.getDescription());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("댓글 조회 성공 - 부모 댓글 1개, 자식 댓글 2개 작성 후 자식 댓글 갯수 비교")
+    void getPostSuccess() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        Post findPost = postRepository.findById(createPost.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        CreateCommentRequest commentRequest = makeCreateCommentRequest(findPost.getId(), null, "댓글 작성");
+        CreateCommentResponse commentResponse = commentService.createComment(commentRequest, authentication);
+        Comment comment = commentRepository.findById(commentResponse.getCommentId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.COMMENT_NOT_FOUND.getDescription()));
+        CreateCommentRequest commentRequest2 = makeCreateCommentRequest(findPost.getId(), comment.getId(), "댓글 작성");
+        CreateCommentResponse commentResponse2 = commentService.createComment(commentRequest2, authentication);
+
+        CreateCommentRequest commentRequest3 = makeCreateCommentRequest(findPost.getId(), comment.getId(), "댓글 작성");
+        CreateCommentResponse commentResponse3 = commentService.createComment(commentRequest3, authentication);
+
+        //when
+        Page<CommentResponse> commentResponsesPage = commentService.getRootOrChildCommentList(comment.getId(), PageRequest.of(0, 10));
+
+        //then
+        List<CommentResponse> commentResponses = commentResponsesPage.getContent();
+
+        assertThat(commentResponses.size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("댓글 조회 실패 - 부모 댓글 1개, 자식 댓글 2개 작성 후 자식 댓글 갯수 비교했을때 불일치한 케이스")
+    void getPostFailed() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        Post findPost = postRepository.findById(createPost.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        CreateCommentRequest commentRequest = makeCreateCommentRequest(findPost.getId(), null, "댓글 작성");
+        CreateCommentResponse commentResponse = commentService.createComment(commentRequest, authentication);
+        Comment comment = commentRepository.findById(commentResponse.getCommentId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.COMMENT_NOT_FOUND.getDescription()));
+        CreateCommentRequest commentRequest2 = makeCreateCommentRequest(findPost.getId(), comment.getId(), "댓글 작성");
+        CreateCommentResponse commentResponse2 = commentService.createComment(commentRequest2, authentication);
+
+        CreateCommentRequest commentRequest3 = makeCreateCommentRequest(findPost.getId(), comment.getId(), "댓글 작성");
+        CreateCommentResponse commentResponse3 = commentService.createComment(commentRequest3, authentication);
+
+        //when
+        Page<CommentResponse> commentResponsesPage = commentService.getRootOrChildCommentList(comment.getId(), PageRequest.of(0, 10));
+
+        //then
+        List<CommentResponse> commentResponses = commentResponsesPage.getContent();
+
+        assertThat(commentResponses.size()).isNotEqualTo(3);
     }
 
     /**

@@ -4,6 +4,7 @@ import com.project.bookstudy.comment.domain.Comment;
 import com.project.bookstudy.comment.domain.param.CreateCommentParam;
 import com.project.bookstudy.comment.dto.CommentDto;
 import com.project.bookstudy.comment.dto.request.CreateCommentRequest;
+import com.project.bookstudy.comment.dto.response.CommentResponse;
 import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
 import com.project.bookstudy.comment.repository.CommentRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
@@ -12,9 +13,15 @@ import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +55,16 @@ public class CommentService {
         return CreateCommentResponse.builder()
                 .commentId(commentDto.getId())
                 .build();
+    }
+
+    public Page<CommentResponse> getRootOrChildCommentList(@Nullable Long parentId, Pageable pageable) {
+        Page<Comment> rootOrChildComments = commentRepository.findRootOrChildByParentId(parentId, pageable);
+        return rootOrChildComments.map(comment -> CommentResponse.builder()
+                .commentId(comment.getId())
+                .childComments(comment.getChildren().stream()
+                        .map(CommentDto::fromEntity)
+                        .collect(Collectors.toList()))
+                .build());
     }
 
 }
