@@ -78,7 +78,7 @@ public class Post extends BaseTimeEntity {
     }
 
     public void delete() {
-        isDeleted = Boolean.FALSE;
+        isDeleted = Boolean.TRUE;
     }
 
 }

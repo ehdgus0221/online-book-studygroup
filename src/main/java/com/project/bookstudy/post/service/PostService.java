@@ -113,12 +113,8 @@ public class PostService {
         post.update(category, request.getSubject(), request.getContents());
     }
 
-    private void deleteBeforeFiles(List<File> beforeFiles, Post post) {
-        for (File file : beforeFiles) {
-            file.deleteFile(post);
-        }
-    }
 
+    @Transactional
     public void deletePost(Long postId, Authentication authentication) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
@@ -133,6 +129,18 @@ public class PostService {
         deleteBeforeFiles(beforeFiles, post);
 
         post.delete();
+    }
+
+    /**
+     *
+     * @param beforeFiles
+     * @param post
+     * 파일 삭제 메서드
+     */
+    private void deleteBeforeFiles(List<File> beforeFiles, Post post) {
+        for (File file : beforeFiles) {
+            file.deleteFile(post);
+        }
     }
 
     /**
