@@ -2,6 +2,7 @@ package com.project.bookstudy.comment.controller;
 
 import com.project.bookstudy.comment.domain.Comment;
 import com.project.bookstudy.comment.dto.request.CreateCommentRequest;
+import com.project.bookstudy.comment.dto.request.UpdateCommentRequest;
 import com.project.bookstudy.comment.dto.response.CommentResponse;
 import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
 import com.project.bookstudy.comment.service.CommentService;
