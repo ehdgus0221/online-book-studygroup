@@ -24,6 +24,7 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND("해당 댓글이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     CATEGORY_NOT_FOUND("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     COMMENT_DELETE_FAIL("댓글 삭제를 실패했습니다.", HttpStatus.BAD_REQUEST),
+    COMMENT_ALREADY_DELETED("이미 삭제된 댓글입니다.", HttpStatus.BAD_REQUEST),
     STUDY_GROUP_FULL("스터디 그룹 인원이 다 찼습니다.", HttpStatus.BAD_REQUEST),
     STUDY_GROUP_CANCEL_FAIL("스터디 그룹 삭제 실패", HttpStatus.BAD_REQUEST),
     POINT_NOT_ENOUGH("포인트가 부족합니다.", HttpStatus.BAD_REQUEST),

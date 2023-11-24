@@ -9,4 +9,6 @@ import java.util.List;
 public interface CustomCommentRepository {
     Page<Comment> findRootOrChildByParentId(Long id, Pageable pageable);
 
+    List<Comment> findRootOrChildByParentIdInDelete(Long id);
+
 }

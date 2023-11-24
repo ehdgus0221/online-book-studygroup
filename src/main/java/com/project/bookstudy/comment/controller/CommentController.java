@@ -49,9 +49,26 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getRootOrChildCommentList(parentId, pageable));
     }
 
+    /**
+     *
+     * @param commentId
+     * @param request
+     * 댓글 수정
+     */
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateComment(@PathVariable("id") Long commentId, @RequestBody UpdateCommentRequest request) {
         commentService.updateComment(commentId, request.getUpdateCommentParam());
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     *
+     * @param commentId
+     * 댓글 삭제
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable("id") Long commentId) {
+        commentService.deleteComment(commentId);
         return ResponseEntity.ok().build();
     }
 }
