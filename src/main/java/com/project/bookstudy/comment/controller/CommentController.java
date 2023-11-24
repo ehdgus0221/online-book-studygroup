@@ -2,6 +2,7 @@ package com.project.bookstudy.comment.controller;
 
 import com.project.bookstudy.comment.dto.request.CreateCommentRequest;
 import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
+import com.project.bookstudy.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,6 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<CreateCommentResponse> createComment(@RequestBody CreateCommentRequest request
     , Authentication authentication) {
-        return ResponseEntity.ok(commentService.createComment(request));
+        return ResponseEntity.ok(commentService.createComment(request, authentication));
     }
 }

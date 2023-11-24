@@ -2,6 +2,8 @@ package com.project.bookstudy.comment.service;
 
 import com.project.bookstudy.comment.domain.Comment;
 import com.project.bookstudy.comment.domain.param.CreateCommentParam;
+import com.project.bookstudy.comment.dto.CommentDto;
+import com.project.bookstudy.comment.dto.request.CreateCommentRequest;
 import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
 import com.project.bookstudy.comment.repository.CommentRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
@@ -24,19 +26,25 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public CreateCommentResponse createComment(Long postId, Long parentId, CreateCommentParam commentParam, Authentication authentication) {
+    public CreateCommentResponse createComment(CreateCommentRequest request
+            , Authentication authentication) {
 
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
 
         Member member = memberRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.USER_NOT_FOUND.getDescription()));
 
-        Comment comment = commentRepository.findById(parentId)
-                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PARENT_NOT_FOUND.getDescription()));
+        Long parentId = request.getParentId();
+        Comment parentComment = parentId != null ?
+                commentRepository.findById(parentId)
+                        .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PARENT_NOT_FOUND.getDescription()))
+                : null;
 
-        Comment savedComment = commentRepository.save(Comment.from(post, member, comment, commentParam));
+
+        Comment savedComment = commentRepository.save(Comment.from(post, member, parentComment, request.toCommentParam()));
         CommentDto commentDto = CommentDto.fromEntity(savedComment);
+
         return CreateCommentResponse.builder()
                 .commentId(commentDto.getId())
                 .build();
