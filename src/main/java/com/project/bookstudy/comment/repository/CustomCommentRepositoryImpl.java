@@ -29,6 +29,16 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository{
         return new PageImpl<>(queryResults.getResults(), pageable, queryResults.getTotal());
     }
 
+    @Override
+    public List<Comment> findRootOrChildByParentIdInDelete(Long id) {
+
+        List<Comment> childCommentList = jpaQueryFactory.selectFrom(comment)
+                .where(getRootOrChild(id))
+                .fetch();
+
+        return childCommentList;
+    }
+
     private BooleanExpression getRootOrChild(Long id) {
         return id != null ? comment.parent.id.eq(id) : null;
     }
