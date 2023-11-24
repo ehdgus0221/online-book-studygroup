@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -112,6 +113,30 @@ public class PostService {
         post.update(category, request.getSubject(), request.getContents());
     }
 
+
+    @Transactional
+    public void deletePost(Long postId, Authentication authentication) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+        Member member = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.USER_NOT_FOUND.getDescription()));
+
+        if (post.getMember().getId() != member.getId()) {
+            throw new IllegalArgumentException(ErrorCode.POST_DELETE_FAIL.getDescription());
+        }
+
+        List<File> beforeFiles = fileRepository.findAllByPost(post);
+        deleteBeforeFiles(beforeFiles, post);
+
+        post.delete();
+    }
+
+    /**
+     *
+     * @param beforeFiles
+     * @param post
+     * 파일 삭제 메서드
+     */
     private void deleteBeforeFiles(List<File> beforeFiles, Post post) {
         for (File file : beforeFiles) {
             file.deleteFile(post);
