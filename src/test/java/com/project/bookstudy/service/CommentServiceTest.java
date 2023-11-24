@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @Slf4j
 @SpringBootTest
@@ -112,6 +113,49 @@ public class CommentServiceTest {
 
         //then
         assertThat(comment.getContent()).isEqualTo(commentRequest.getContent());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("댓글 생성 실패 - 요청 시 작성한 부모 댓글(parentId)이 없는 경우")
+    void createPostFailed() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        Post findPost = postRepository.findById(createPost.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+
+        //when
+        //then
+        CreateCommentRequest commentRequest = makeCreateCommentRequest(findPost.getId(), 1L, "댓글 작성");
+
+        assertThatThrownBy(() -> commentService.createComment(commentRequest, authentication))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(ErrorCode.PARENT_NOT_FOUND.getDescription());
     }
 
     /**
