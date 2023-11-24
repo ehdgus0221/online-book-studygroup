@@ -2,6 +2,7 @@ package com.project.bookstudy.comment.service;
 
 import com.project.bookstudy.comment.domain.Comment;
 import com.project.bookstudy.comment.domain.param.CreateCommentParam;
+import com.project.bookstudy.comment.domain.param.UpdateCommentParam;
 import com.project.bookstudy.comment.dto.CommentDto;
 import com.project.bookstudy.comment.dto.request.CreateCommentRequest;
 import com.project.bookstudy.comment.dto.response.CommentResponse;
@@ -65,6 +66,14 @@ public class CommentService {
                         .map(CommentDto::fromEntity)
                         .collect(Collectors.toList()))
                 .build());
+    }
+
+    @Transactional
+    public void updateComment(Long commentId, UpdateCommentParam updateParam) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.COMMENT_NOT_FOUND.getDescription()));
+
+        comment.update(updateParam);
     }
 
 }
