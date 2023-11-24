@@ -76,4 +76,27 @@ public class CommentService {
         comment.update(updateParam);
     }
 
+    @Transactional
+    public void deleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.COMMENT_NOT_FOUND.getDescription()));
+        if (comment.getIsDeleted()) {
+            throw new IllegalArgumentException(ErrorCode.COMMENT_ALREADY_DELETED.getDescription());
+        }
+        //comment.delete();
+        deleteChildCommentAndParentComment(comment);
+    }
+
+    private void deleteChildCommentAndParentComment(Comment comment) {
+
+        if (comment == null) {
+            return;
+        }
+        List<Comment> childComments = commentRepository.findRootOrChildByParentIdInDelete(comment.getId());
+        for (Comment childComment : childComments) {
+            deleteChildCommentAndParentComment(childComment);
+        }
+
+        commentRepository.delete(comment);
+    }
 }
