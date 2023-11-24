@@ -1,5 +1,7 @@
 package com.project.bookstudy.comment.controller;
 
+import com.project.bookstudy.comment.dto.request.CreateCommentRequest;
+import com.project.bookstudy.comment.dto.response.CreateCommentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

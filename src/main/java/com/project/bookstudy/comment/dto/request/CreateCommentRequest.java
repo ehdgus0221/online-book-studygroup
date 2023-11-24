@@ -1,4 +1,4 @@
-package com.project.bookstudy.comment.dto;
+package com.project.bookstudy.comment.dto.request;
 
 import com.project.bookstudy.comment.domain.param.CreateCommentParam;
 import lombok.Builder;
