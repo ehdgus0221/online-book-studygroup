@@ -12,6 +12,7 @@ import com.project.bookstudy.post.dto.request.UpdatePostRequest;
 import com.project.bookstudy.post.dto.response.CreatePostResponse;
 import com.project.bookstudy.post.dto.PostDto;
 import com.project.bookstudy.post.dto.request.PostSearchCond;
+import com.project.bookstudy.post.file.domain.File;
 import com.project.bookstudy.post.file.repository.FileRepository;
 import com.project.bookstudy.post.repository.PostRepository;
 import com.project.bookstudy.post.service.PostService;
@@ -178,7 +179,7 @@ public class PostServiceTest {
         PostDto postDto = postService.getPost(createPost.getPostId());
         //then
         Post findPost = postRepository.findById(postDto.getId())
-                        .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
 
         assertThat(findPost.getSubject()).isEqualTo(postRequest.getSubject());
         assertThat(findPost.getContents()).isEqualTo(postRequest.getContents());
@@ -342,7 +343,7 @@ public class PostServiceTest {
         List<MultipartFile> multipartFiles2 = new ArrayList<>();
         multipartFiles2.add(new MockMultipartFile("files", "file2.txt", "text/plain", "File 2 content".getBytes()));
         UpdatePostRequest updatePostRequest = makeUpdatePostRequest(categoryId, "제목 수정", "내용 수정");
-        postService.updatePost(createPost.getPostId(),updatePostRequest, multipartFiles2, authentication);
+        postService.updatePost(createPost.getPostId(), updatePostRequest, multipartFiles2, authentication);
 
         Post resultPost = postRepository.findById(createPost.getPostId())
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
@@ -382,7 +383,7 @@ public class PostServiceTest {
         List<MultipartFile> multipartFiles2 = new ArrayList<>();
         multipartFiles2.add(new MockMultipartFile("files", "file2.txt", "text/plain", "File 2 content".getBytes()));
         UpdatePostRequest updatePostRequest = makeUpdatePostRequest(categoryId, "제목 수정", "내용 수정");
-        postService.updatePost(createPost.getPostId(),updatePostRequest, multipartFiles2, authentication);
+        postService.updatePost(createPost.getPostId(), updatePostRequest, multipartFiles2, authentication);
 
         Post resultPost = postRepository.findById(createPost.getPostId())
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
@@ -390,6 +391,52 @@ public class PostServiceTest {
         assertThat(resultPost.getSubject()).isNotEqualTo("제목 수정1");
         assertThat(resultPost.getContents()).isNotEqualTo("내용 수정1");
         assertThat(resultPost.getContents()).isNotEqualTo("내용 수정1");
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 삭제 성공")
+    void deletePostSuccess() throws IOException {
+        //given
+        Member member = createMember("member", "member@naver.com");
+        memberRepository.save(member);
+        Member leader = createMember("leader", "leader@naver.com");
+        memberRepository.save(leader);
+
+        Authentication authentication = createAuthenticationMember();
+
+        CreateStudyGroupRequest request = createStudyCreateGroupRequest(leader.getId(),
+                LocalDateTime.of(2023, 12, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 2, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 1, 0, 0, 0),
+                LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
+        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
+        CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
+        Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
+
+        CreatePostRequest postRequest = makeCreatePostRequest("게시글 만들기", "게시글 테스트", categoryId, studyGroup.getId());
+
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+
+        multipartFiles.add(new MockMultipartFile("files", "file1.txt", "text/plain", "File 1 content".getBytes()));
+
+        CreatePostResponse createPost = postService.createPost(postRequest, multipartFiles, authentication);
+
+        //when
+        postService.deletePost(createPost.getPostId(), authentication);
+        //then
+
+        Post findPost = postRepository.findById(createPost.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POST_NOT_FOUND.getDescription()));
+        List<File> findFile = fileRepository.findAllByPost(findPost);
+        assertThat(findFile)
+                .as("All files should be deleted.")
+                .allMatch(file -> file.getIsDeleted().equals(Boolean.TRUE));
+
+        assertThat(findPost.getIsDeleted()).isEqualTo(Boolean.TRUE);
+
     }
 
     /**
@@ -412,8 +459,7 @@ public class PostServiceTest {
      * @param recruitmentStartDt
      * @param recruitmentEndDt
      * @param subject
-     * @param contents
-     * 회원가입 request 값
+     * @param contents           회원가입 request 값
      */
     private CreateStudyGroupRequest createStudyCreateGroupRequest(Long memberId, LocalDateTime studyStartDt, LocalDateTime studyEndDt, LocalDateTime recruitmentStartDt, LocalDateTime recruitmentEndDt, String subject, String contents) {
         return CreateStudyGroupRequest.builder()
