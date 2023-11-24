@@ -5,12 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class UpdateCommentParam {
-    private Long id;
     private String content;
 
     @Builder
-    public UpdateCommentParam(Long id, String content) {
-        this.id = id;
+    public UpdateCommentParam(String content) {
         this.content = content;
     }
 }

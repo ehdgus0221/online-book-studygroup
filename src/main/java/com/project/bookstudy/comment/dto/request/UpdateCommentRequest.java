@@ -3,8 +3,10 @@ package com.project.bookstudy.comment.dto.request;
 import com.project.bookstudy.comment.domain.param.UpdateCommentParam;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class UpdateCommentRequest {
 
     private String content;
