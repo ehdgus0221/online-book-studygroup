@@ -3,6 +3,7 @@ package com.project.bookstudy.category.service;
 import com.project.bookstudy.category.domain.Category;
 import com.project.bookstudy.category.dto.*;
 import com.project.bookstudy.category.repository.CategoryRepository;
+import com.project.bookstudy.comment.repository.CommentRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.post.domain.Post;
 import com.project.bookstudy.post.file.repository.FileRepository;
@@ -28,6 +29,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final StudyGroupRepository studyGroupRepository;
+    private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final FileRepository fileRepository;
 
@@ -87,7 +89,7 @@ public class CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.CATEGORY_NOT_FOUND.getDescription()));
 
-        deleteChildCategoryAndPost(category);
+        deleteRelatedData(category);
     }
 
     private void deleteRelatedData(Category category) {
@@ -98,25 +100,15 @@ public class CategoryService {
         for (Category childCategory : childCategories) {
             deleteRelatedData(childCategory);
         }
-        //TODO : 게시판 생성 이후 게시판, 게시판 파일 같이 삭제하기
-
-        //카테고리 삭제
-        categoryRepository.delete(category);
-    }
-
-    private void deleteChildCategoryAndPost(Category category) {
-
-        if (category == null) return;
-
-        List<Category> childCategories = categoryRepository.findRootOrChildByParentId(category.getId());
-        for (Category childCategory : childCategories) {
-            deleteChildCategoryAndPost(childCategory);
-        }
 
         List<Post> postList = postRepository.findPostsByCategory(category);
-        fileRepository.deleteAllByPostIn(postList);
-        postRepository.softDeleteAllByCategory(category);
 
+        //게시판 파일 삭제
+        fileRepository.deleteAllInBatchByPostIn(postList);
+        //게시판 댓글 삭제
+        commentRepository.deleteAllInBatchByPostIn(postList);
+        //카테고리의 게시판 삭제
+        postRepository.softDeleteAllByCategory(category);
         //카테고리 삭제
         categoryRepository.delete(category);
     }

@@ -125,8 +125,10 @@ public class PostService {
             throw new IllegalArgumentException(ErrorCode.POST_DELETE_FAIL.getDescription());
         }
 
-        List<File> beforeFiles = fileRepository.findAllByPost(post);
-        deleteBeforeFiles(beforeFiles, post);
+        //List<File> beforeFiles = fileRepository.findAllByPost(post);
+        //deleteBeforeFiles(beforeFiles, post);
+        fileRepository.deleteAllInBatchByPostIn(List.of(post));
+        postRepository.delete(post);
 
         post.delete();
     }
