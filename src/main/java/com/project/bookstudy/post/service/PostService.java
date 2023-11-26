@@ -2,6 +2,7 @@ package com.project.bookstudy.post.service;
 
 import com.project.bookstudy.category.domain.Category;
 import com.project.bookstudy.category.repository.CategoryRepository;
+import com.project.bookstudy.comment.repository.CommentRepository;
 import com.project.bookstudy.common.dto.ErrorCode;
 import com.project.bookstudy.common.exception.FileException;
 import com.project.bookstudy.member.domain.Member;
@@ -43,6 +44,7 @@ public class PostService {
     private final StudyGroupRepository studyGroupRepository;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final FileRepository fileRepository;
     private final S3Uploader s3Uploader;
     private final S3Deleter s3Deleter;
@@ -125,9 +127,10 @@ public class PostService {
             throw new IllegalArgumentException(ErrorCode.POST_DELETE_FAIL.getDescription());
         }
 
-        //List<File> beforeFiles = fileRepository.findAllByPost(post);
-        //deleteBeforeFiles(beforeFiles, post);
+        // 파일 삭제
         fileRepository.deleteAllInBatchByPostIn(List.of(post));
+        //게시판 댓글 삭제
+        commentRepository.deleteAllInBatchByPostIn(List.of(post));
         postRepository.delete(post);
 
         post.delete();
