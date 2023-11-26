@@ -7,13 +7,18 @@ import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.point.domain.PointCharge;
 import com.project.bookstudy.point.domain.PointChargeStatus;
 import com.project.bookstudy.point.repository.PointChargeRepository;
+import com.project.bookstudy.point.service.dto.PointChargeDto;
 import com.project.bookstudy.point.service.dto.PointChargePrepareServiceResponse;
+import com.project.bookstudy.point.service.dto.PointSystemApprovalResponse;
 import com.project.bookstudy.point.service.dto.PointSystemPreparationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.UUID;
+
+import static com.project.bookstudy.point.domain.PointChargeStatus.FAIL;
 
 @Service
 @Transactional(readOnly = true)
@@ -62,5 +67,30 @@ public class PointChargeService {
 
         //logic
         pointCharge.terminateIn(status);
+    }
+
+    @Transactional
+    public PointChargeDto approve(String tempKey, Map<String, String> extraRequestData) {
+
+        //setting
+        PointCharge pointCharge = pointChargeRepository.findByTempKey(tempKey)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POINT_CHARGE_NOT_FOUND.getDescription()));
+
+        Member member = pointCharge.getMember();
+
+        //logic
+        PointSystemApprovalResponse response = pointClient.approvePointCharge(MemberDto.fromEntity(member), PointChargeDto.fromEntity(pointCharge), extraRequestData);
+        validate(response, pointCharge);
+        pointCharge.success(response.getApprovedAt());
+
+        return PointChargeDto.fromEntity(pointCharge);
+    }
+
+    private void validate(PointSystemApprovalResponse response, PointCharge pointCharge) {
+        if (!response.getTransactionId().equals(pointCharge.getTransactionId())
+                || pointCharge.getChargeAmount().longValue() != response.getTotalAmount().longValue()) {
+            pointCharge.terminateIn(FAIL);
+            throw new IllegalStateException(ErrorCode.CHARGE_FAILED.getDescription());
+        }
     }
 }
