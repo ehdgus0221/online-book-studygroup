@@ -5,6 +5,7 @@ import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.dto.MemberDto;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.point.domain.PointCharge;
+import com.project.bookstudy.point.domain.PointChargeStatus;
 import com.project.bookstudy.point.repository.PointChargeRepository;
 import com.project.bookstudy.point.service.dto.PointChargePrepareServiceResponse;
 import com.project.bookstudy.point.service.dto.PointSystemPreparationResponse;
@@ -50,5 +51,16 @@ public class PointChargeService {
                 .pointChargeId(pointCharge.getId())
                 .extraData(response.getExtraData())
                 .build();
+    }
+
+    @Transactional
+    public void terminate(String tempKey, PointChargeStatus status) {
+
+        //setting
+        PointCharge pointCharge = pointChargeRepository.findByTempKey(tempKey)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.POINT_CHARGE_NOT_FOUND.getDescription()));
+
+        //logic
+        pointCharge.terminateIn(status);
     }
 }
