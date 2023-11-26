@@ -137,4 +137,72 @@ public class StudyGroup {
         return false;
     }
 
+    // 스터디 종료
+    public boolean isStudyEnded() {
+        if (getStudyEndDt().toLocalDate().isBefore(nowDate)) {
+            return true;
+        } return false;
+    }
+
+    // 모집 대기
+    public boolean isRecruitmentWaited() {
+        if (getRecruitmentStartDt().toLocalDate().isAfter(nowDate)) {
+            return true;
+        } return false;
+    }
+
+
+    // 모집 마감
+    public boolean isRecruitmentEnded() {
+        if (getRecruitmentEndDt().toLocalDate().isBefore(nowDate)
+                && nowDate.isBefore(getStudyStartDt().toLocalDate())) {
+            return true;
+        } return false;
+    }
+
+    // 스터디 진행
+    public boolean isStudyStarted() {
+        if (getStudyStartDt().toLocalDate().minusDays(1).isBefore(nowDate)
+                && nowDate.isBefore(getStudyEndDt().toLocalDate().plusDays(1))) {
+            return true;
+        } return false;
+    }
+
+    public void recruitWait() {
+        status = StudyGroupStatus.RECRUIT_WAIT;
+    }
+    public void recruitIng() {
+        status = StudyGroupStatus.RECRUIT_ING;
+    }
+    public void recruitmentEnd() {
+        status = StudyGroupStatus.RECRUITMENT_END;
+    }
+    public void studyIng() {
+        status = StudyGroupStatus.STUDY_ING;
+    }
+    public void studyEnd() {
+        status = StudyGroupStatus.STUDY_END;
+    }
+
+
+    public void updateStatus() {
+        if (!status.equals(StudyGroupStatus.STUDY_END)) {
+            if (isStudyEnded()) {
+                studyEnd();
+                log.info(id + " : 스터디 종료");
+            } else if (isRecruitmentWaited()) {
+                recruitWait();
+                log.info(id + " : 모집 대기");
+            } else if (isRecruitmentStarted()) {
+                recruitIng();
+                log.info(id + " : 모집 중");
+            } else if (isRecruitmentEnded()) {
+                recruitmentEnd();
+                log.info(id + " : 모집 마감");
+            } else if (isStudyStarted()) {
+                studyIng();
+                log.info(id + " : 스터디 진행중");
+            }
+        }
+    }
 }
