@@ -1,5 +1,6 @@
 package com.project.bookstudy.point.controller;
 
+import com.project.bookstudy.point.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,6 @@ public class KakaoPointChargeController {
         PointChargePrepareServiceResponse response = pointChargeService.prepare(request.getMemberId(), request.getPointAmount());
         KakaoPointChargePrepareResponse kakaoPointChargePrepareResponse = KakaoPointChargePrepareResponse.fromServiceResponse(response);
 
-        return ApiResonse.ok(kakaoPointChargePrepareResponse);
+        return ApiResponse.ok(kakaoPointChargePrepareResponse);
     }
 }
