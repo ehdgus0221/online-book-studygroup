@@ -1,5 +1,6 @@
 package com.project.bookstudy.point.controller.dto;
 
+import com.project.bookstudy.point.infra.KakaoPointClient;
 import com.project.bookstudy.point.service.dto.PointChargePrepareServiceResponse;
 import lombok.Builder;
 import lombok.Getter;

@@ -4,6 +4,7 @@ import com.project.bookstudy.member.dto.MemberDto;
 import com.project.bookstudy.point.service.PointClient;
 import com.project.bookstudy.point.service.dto.PointChargeDto;
 import com.project.bookstudy.point.service.dto.PointSystemApprovalResponse;
+import com.project.bookstudy.point.service.dto.PointSystemPreparationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

@@ -1,5 +1,6 @@
 package com.project.bookstudy.point.service.dto;
 
+import com.project.bookstudy.point.domain.PointChargeStatus;
 import lombok.Builder;
 import lombok.Getter;
 

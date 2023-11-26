@@ -1,4 +1,4 @@
-package com.project.bookstudy.point.service;
+package com.project.bookstudy.point.service.dto;
 
 import lombok.Builder;
 import lombok.Getter;
