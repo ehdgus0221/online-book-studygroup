@@ -31,5 +31,11 @@ public class KakaoPointChargeController {
         pointChargeService.terminate(tempKey, PointChargeStatus.CANCEL);
         return ApiResponse.of(HttpStatus.ACCEPTED, "결제가 취소되었습니다.", null);
     }
+
+    @GetMapping("/fail")
+    public ApiResponse<Void> failPointCharge(@RequestParam("temp_key") String tempKey) {
+        pointChargeService.terminate(tempKey, PointChargeStatus.FAIL);
+        return ApiResponse.of(HttpStatus.SERVICE_UNAVAILABLE, "결제가 실패했습니다.", null);
+    }
 }
 
