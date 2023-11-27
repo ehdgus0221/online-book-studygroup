@@ -32,12 +32,7 @@ public class StudyGroupController {
     @PostMapping
     public ResponseEntity<CreateStudyGroupResponse> createStudyGroup(Authentication authentication,
                                                      @Valid @RequestBody CreateStudyGroupRequest request) {
-        StudyGroupDto studyGroupDto = studyGroupService
-                .createStudyGroup(authentication, request.toStudyGroupParam());
-        return ResponseEntity.ok(CreateStudyGroupResponse.builder()
-                .studyGroupId(studyGroupDto.getId())
-                .leaderId(studyGroupDto.getLeaderId())
-                .build());
+        return ResponseEntity.ok(studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam()));
     }
 
     /**

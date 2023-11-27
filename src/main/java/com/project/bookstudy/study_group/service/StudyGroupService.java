@@ -9,6 +9,7 @@ import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
+import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,14 +28,14 @@ public class StudyGroupService {
 
 
     @Transactional
-    public StudyGroupDto createStudyGroup(Authentication authentication, CreateStudyGroupParam studyGroupParam) {
+    public CreateStudyGroupResponse createStudyGroup(Authentication authentication, CreateStudyGroupParam studyGroupParam) {
 
         Member member = memberRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.USER_NOT_FOUND.getDescription()));
 
         StudyGroup savedStudyGroup = studyGroupRepository.save(StudyGroup.from(member, studyGroupParam));
 
-        return StudyGroupDto.fromEntity(savedStudyGroup);
+        return CreateStudyGroupResponse.fromStudyGroup(savedStudyGroup);
     }
 
     public Page<StudyGroupDto> getStudyGroupList(Pageable pageable, StudyGroupSearchCond cond) {
