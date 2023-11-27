@@ -30,14 +30,14 @@ public class StudyGroupController {
      * 스터디 그룹 생성
      */
     @PostMapping
-    public CreateStudyGroupResponse createStudyGroup(Authentication authentication,
+    public ResponseEntity<CreateStudyGroupResponse> createStudyGroup(Authentication authentication,
                                                      @Valid @RequestBody CreateStudyGroupRequest request) {
         StudyGroupDto studyGroupDto = studyGroupService
                 .createStudyGroup(authentication, request.toStudyGroupParam());
-        return CreateStudyGroupResponse.builder()
+        return ResponseEntity.ok(CreateStudyGroupResponse.builder()
                 .studyGroupId(studyGroupDto.getId())
                 .leaderId(studyGroupDto.getLeaderId())
-                .build();
+                .build());
     }
 
     /**
@@ -50,9 +50,9 @@ public class StudyGroupController {
      * 2. StudyGroup 제목
      */
     @GetMapping
-    public Page<StudyGroupDto> getStudyGroupList (@PageableDefault Pageable pageable,
+    public ResponseEntity<Page<StudyGroupDto>> getStudyGroupList (@PageableDefault Pageable pageable,
                                                   @ModelAttribute StudyGroupSearchCond cond) {
-        return studyGroupService.getStudyGroupList(pageable, cond);
+        return ResponseEntity.ok(studyGroupService.getStudyGroupList(pageable, cond));
     }
 
     /**
@@ -61,8 +61,8 @@ public class StudyGroupController {
      * 특정 스터디그룹 조회
      */
     @GetMapping("/{id}")
-    public StudyGroupDto getStudyGroup (@PathVariable("id") Long studyGroupId) {
-        return studyGroupService.getStudyGroup(studyGroupId);
+    public ResponseEntity<StudyGroupDto> getStudyGroup (@PathVariable("id") Long studyGroupId) {
+        return ResponseEntity.ok(studyGroupService.getStudyGroup(studyGroupId));
     }
 
     /**
