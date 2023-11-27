@@ -9,6 +9,7 @@ import com.project.bookstudy.study_group.domain.StudyGroupStatus;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
+import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import com.project.bookstudy.study_group.service.StudyGroupService;
 import lombok.extern.slf4j.Slf4j;
@@ -58,11 +59,11 @@ class StudyGroupServiceTest {
                 LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject", "contents");
 
         //when
-        StudyGroupDto response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        CreateStudyGroupResponse response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
 
 
         //then
-        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
 
         assertThat(studyGroup.getId()).isNotNull();
@@ -114,11 +115,11 @@ class StudyGroupServiceTest {
                 LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject", "contents");
 
         //when
-        StudyGroupDto response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        CreateStudyGroupResponse response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
 
 
         //then
-        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
 
         assertThat(studyGroup.getId()).isNotNull();
@@ -272,8 +273,8 @@ class StudyGroupServiceTest {
 
 
         //when
-        StudyGroupDto response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+        CreateStudyGroupResponse response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
 
         UpdateStudyGroupRequest request1 = updateStudyGroupRequest(
@@ -317,8 +318,8 @@ class StudyGroupServiceTest {
                 LocalDateTime.of(2023, 9, 30, 0, 0, 0), "subject", "contents");
 
         //when
-        StudyGroupDto response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response.getId())
+        CreateStudyGroupResponse response = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
 
         //

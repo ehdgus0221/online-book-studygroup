@@ -23,6 +23,7 @@ import com.project.bookstudy.post.service.PostService;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
+import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import com.project.bookstudy.study_group.service.StudyGroupService;
 import lombok.extern.slf4j.Slf4j;
@@ -92,8 +93,8 @@ public class CommentServiceTest {
                 LocalDateTime.of(2023, 12, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
-        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+        CreateStudyGroupResponse response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getLeaderId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
         CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
         Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
@@ -136,8 +137,8 @@ public class CommentServiceTest {
                 LocalDateTime.of(2023, 12, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
-        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+        CreateStudyGroupResponse response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
         CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
         Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
@@ -179,8 +180,8 @@ public class CommentServiceTest {
                 LocalDateTime.of(2023, 12, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
-        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+        CreateStudyGroupResponse response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
         CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
         Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
@@ -232,8 +233,8 @@ public class CommentServiceTest {
                 LocalDateTime.of(2023, 12, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
-        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+        CreateStudyGroupResponse response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
         CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
         Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
@@ -285,8 +286,8 @@ public class CommentServiceTest {
                 LocalDateTime.of(2023, 12, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
-        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+        CreateStudyGroupResponse response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
         CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
         Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
@@ -332,8 +333,8 @@ public class CommentServiceTest {
                 LocalDateTime.of(2023, 12, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
-        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+        CreateStudyGroupResponse response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
         CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
         Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
@@ -379,8 +380,8 @@ public class CommentServiceTest {
                 LocalDateTime.of(2023, 12, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
-        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+        CreateStudyGroupResponse response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
         CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
         Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
@@ -436,8 +437,8 @@ public class CommentServiceTest {
                 LocalDateTime.of(2023, 12, 2, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 1, 0, 0, 0),
                 LocalDateTime.of(2023, 11, 30, 0, 0, 0), "subject", "contents");
-        StudyGroupDto response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
-        StudyGroup studyGroup = studyGroupRepository.findById(response1.getId())
+        CreateStudyGroupResponse response1 = studyGroupService.createStudyGroup(authentication, request.toStudyGroupParam());
+        StudyGroup studyGroup = studyGroupRepository.findById(response1.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디 없음"));
         CreateCategoryRequest categoryRequest = makeCreateCategoryRequest(null, studyGroup);
         Long categoryId = categoryService.createCategory(categoryRequest).getCategoryId();
