@@ -30,9 +30,11 @@ public class SecurityConfig {
     private final KakaoOAuth2MemberService kakaoOAuth2MemberService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
-    private final ObjectMapper objectMapper;
-    private final JwtTokenService jwtTokenProvider;
-    private final MemberRepository memberRepository;
+    private final JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter;
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
+    private final ApiAuthenticationEntryPoint apiAuthenticationEntryPoint;
+    private final ApiAccessDeniedHandler apiAccessDeniedHandler;
+
 
 
     @Bean
@@ -55,11 +57,11 @@ public class SecurityConfig {
 
         // 필터 순서를 설정하여 정상작동 및 Filter에서 예외처리 진행
         http
-                .addFilterBefore(new JwtAuthenticationProcessingFilter(jwtTokenProvider, memberRepository), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new ExceptionHandlerFilter(objectMapper), JwtAuthenticationProcessingFilter.class)
+                .addFilterBefore(jwtAuthenticationProcessingFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionHandlerFilter, JwtAuthenticationProcessingFilter.class)
                 .exceptionHandling()
-                .authenticationEntryPoint(new ApiAuthenticationEntryPoint(objectMapper)) //AuthenticationException
-                .accessDeniedHandler(new ApiAccessDeniedHandler(objectMapper));     //AccessDeniedException
+                .authenticationEntryPoint(apiAuthenticationEntryPoint) //AuthenticationException
+                .accessDeniedHandler(apiAccessDeniedHandler);     //AccessDeniedException
 
         return http.build();
     }
