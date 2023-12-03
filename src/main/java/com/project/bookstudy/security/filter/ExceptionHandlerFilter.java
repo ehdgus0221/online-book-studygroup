@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -20,6 +21,7 @@ import static com.project.bookstudy.common.dto.ErrorCode.TOKEN_INVALID;
 
 @RequiredArgsConstructor
 @Slf4j
+@Component
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
     @Override
